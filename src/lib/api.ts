@@ -1,45 +1,60 @@
 import { supabase } from './supabase';
-import { subDays, format } from 'date-fns';
+import { subDays } from 'date-fns';
+import type { Station, SnowStat, AppData } from './data';
 
-export interface StationStat {
-  station_id: string;
-  date: string;
-  snow_index: number;
-  cloud_cover: number;
-}
+export const fetchAppData = async (): Promise<AppData> => {
+  const ninetyDaysAgo = subDays(new Date(), 90).toISOString();
 
-export interface ChartData {
-  date: string;
-  [key: string]: number | string;
-}
+  // Pobieramy dane stacji i statystyki równolegle dla optymalizacji
+  const stationsPromise = supabase
+    .from('stations')
+    .select('id, name, elevation:elevation_m')
+    .in('id', ['zermatt', 'theodul', 'matterhorn']);
 
-export async function fetchDashboardData(): Promise<ChartData[]> {
-  const ninetyDaysAgo = format(subDays(new Date(), 90), 'yyyy-MM-dd');
-
-  const { data, error } = await supabase
+  const statsPromise = supabase
     .from('station_stats')
-    .select('date, station_id, snow_index')
-    .in('station_id', ['zermatt', 'theodul', 'matterhorn'])
+    .select('station_id, date, snow_index, cloud_cover')
     .gte('date', ninetyDaysAgo)
     .order('date', { ascending: true });
 
-  if (error) {
-    console.error('Error fetching dashboard data:', error);
-    throw new Error('Could not fetch dashboard data');
-  }
+  const [stationsResult, statsResult] = await Promise.all([stationsPromise, statsPromise]);
 
-  if (!data) {
-    return [];
+  if (stationsResult.error) {
+    console.error('Error fetching stations:', stationsResult.error);
+    throw new Error('Could not fetch station data');
   }
+  if (statsResult.error) {
+    console.error('Error fetching stats:', statsResult.error);
+    throw new Error('Could not fetch station stats');
+  }
+  
+  // Sortujemy stacje, aby zachować spójność z UI
+  const stationOrder = ['zermatt', 'theodul', 'matterhorn'];
+  const stations: Station[] = (stationsResult.data || []).sort(
+    (a, b) => stationOrder.indexOf(a.id) - stationOrder.indexOf(b.id)
+  );
 
-  const formattedData = data.reduce((acc: { [key: string]: ChartData }, curr: StationStat) => {
-    const { date, station_id, snow_index } = curr;
-    if (!acc[date]) {
-      acc[date] = { date };
+  // Grupujemy statystyki per stacja
+  const stats: Record<Station['id'], SnowStat[]> = {
+    zermatt: [],
+    theodul: [],
+    matterhorn: [],
+  };
+
+  for (const row of (statsResult.data || [])) {
+    const stationId = row.station_id as Station['id'];
+    if (stats[stationId]) {
+      stats[stationId].push({
+        date: row.date,
+        // Mapujemy nazwy kolumn z bazy na nazwy używane w komponentach
+        snowIndex: row.snow_index,
+        cloudCover: row.cloud_cover,
+      });
     }
-    acc[date][station_id] = snow_index;
-    return acc;
-  }, {});
+  }
 
-  return Object.values(formattedData);
-}
+  return {
+    stations,
+    stats,
+  };
+};

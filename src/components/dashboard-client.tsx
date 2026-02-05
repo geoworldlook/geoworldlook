@@ -12,6 +12,10 @@ interface DashboardClientProps {
 
 export function DashboardClient({ data }: DashboardClientProps) {
   const { stations, stats } = data;
+  
+  if (!stations || stations.length === 0) {
+    return <p>No station data available. Please check your data source.</p>;
+  }
 
   return (
     <Tabs defaultValue={stations[0].id} className="w-full">
@@ -25,6 +29,14 @@ export function DashboardClient({ data }: DashboardClientProps) {
 
       {stations.map((station) => {
         const stationStats = stats[station.id];
+        if (!stationStats || stationStats.length === 0) {
+          return (
+            <TabsContent key={station.id} value={station.id}>
+              <p>No historical data available for {station.name}.</p>
+            </TabsContent>
+          );
+        }
+        
         const latestStat = stationStats[stationStats.length - 1];
 
         return (
