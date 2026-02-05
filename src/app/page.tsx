@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { DashboardClient } from '@/components/dashboard-client'
 import { fetchAppData } from '@/lib/api'
 import type { AppData } from '@/lib/data'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function Home() {
   const [data, setData] = useState<AppData | null>(null)
@@ -21,7 +22,6 @@ export default function Home() {
         } else {
           setError('An unknown error occurred while fetching data.')
         }
-        console.error('Failed to fetch dashboard data:', err)
       } finally {
         setIsLoading(false)
       }
