@@ -1,8 +1,27 @@
-import { DashboardClient } from '@/components/dashboard-client';
-import { getAppData } from '@/lib/data';
+'use client'
 
-export default async function Home() {
-  const data = await getAppData();
+import { useState, useEffect } from 'react'
+import { DashboardClient } from '@/components/dashboard-client'
+import { getAppData, AppData } from '@/lib/data'
+
+export default function Home() {
+  const [data, setData] = useState<AppData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const dashboardData = await getAppData()
+        setData(dashboardData)
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
@@ -15,8 +34,12 @@ export default async function Home() {
             Real-time snow condition monitoring for key alpine locations.
           </p>
         </header>
-        <DashboardClient data={data} />
+        {isLoading || !data ? (
+          <p>Loading live data...</p>
+        ) : (
+          <DashboardClient data={data} />
+        )}
       </div>
     </main>
-  );
+  )
 }
