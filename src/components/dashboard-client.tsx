@@ -63,7 +63,7 @@ export function DashboardClient({ data }: DashboardClientProps) {
                     <Mountain className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{station.elevation.toLocaleString()}m</div>
+                    <div className="text-2xl font-bold">{station.elevation}m</div>
                     <p className="text-xs text-muted-foreground">
                       Above sea level
                     </p>
