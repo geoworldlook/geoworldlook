@@ -1,8 +1,12 @@
-import { supabase } from './supabase';
+import { supabase, checkSupabaseCredentials } from './supabase';
 import { subDays } from 'date-fns';
 import type { Station, SnowStat, AppData } from './data';
 
 export const fetchAppData = async (): Promise<AppData> => {
+  // This will throw an error if credentials are not set,
+  // allowing the UI to catch it and display a helpful message.
+  checkSupabaseCredentials();
+
   const ninetyDaysAgo = subDays(new Date(), 90).toISOString();
 
   // Pobieramy dane stacji i statystyki równolegle dla optymalizacji
