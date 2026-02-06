@@ -43,3 +43,11 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+
+node_modules/
+.next/
+.env
+.env.local
+__pycache__/
+.venv/
+.DS_Store
