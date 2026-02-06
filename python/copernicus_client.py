@@ -5,21 +5,28 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-load_dotenv()
-
 import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-# 1. Próba załadowania .env (tylko lokalnie w IDX)
-load_dotenv()
+# Lokalnie w IDX załaduje .env. Na GitHubie po prostu pominie.
+if os.path.exists('.env'):
+    load_dotenv()
 
-# 2. Pobranie zmiennych (z .env LUB z GitHub Secrets)
+# Pobieranie zmiennych
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 CLIENT_ID = os.environ.get("COPERNICUS_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("COPERNICUS_CLIENT_SECRET")
 
+# Prosty check bez przerywania, jeśli zmienne są w systemie
+if not all([SUPABASE_URL, SUPABASE_KEY, CLIENT_ID, CLIENT_SECRET]):
+    print("❌ BŁĄD: Brakuje kluczy w środowisku!")
+    # Wyświetli co jest puste (ułatwia debugowanie)
+    print(f"URL: {bool(SUPABASE_URL)}, KEY: {bool(SUPABASE_KEY)}, ID: {bool(CLIENT_ID)}, SEC: {bool(CLIENT_SECRET)}")
+    exit(1)
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 # 3. Logika sprawdzająca (Zastępuje Twój stary błąd w linii 20)
 missing_vars = []
 if not SUPABASE_URL: missing_vars.append("SUPABASE_URL")
