@@ -11,28 +11,29 @@ import os
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-# Próbuje załadować .env (zadziała lokalnie w IDX). 
-# Na GitHubie po prostu nic nie zrobi, co jest poprawne.
+# 1. Próba załadowania .env (tylko lokalnie w IDX)
 load_dotenv()
 
-# Pobieranie zmiennych z systemu (GitHub Actions wstawi tam Twoje Secrets)
+# 2. Pobranie zmiennych (z .env LUB z GitHub Secrets)
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 CLIENT_ID = os.environ.get("COPERNICUS_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("COPERNICUS_CLIENT_SECRET")
 
-# SPRAWDZANIE: Czy klucze są w ogóle dostępne w pamięci?
-if not all([SUPABASE_URL, SUPABASE_KEY, CLIENT_ID, CLIENT_SECRET]):
-    # To pomoże Ci zdiagnozować, którego klucza brakuje w GitHub Secrets
-    missing = [k for k, v in {
-        "SUPABASE_URL": SUPABASE_URL,
-        "SUPABASE_SERVICE_ROLE_KEY": SUPABASE_KEY,
-        "COPERNICUS_CLIENT_ID": CLIENT_ID,
-        "COPERNICUS_CLIENT_SECRET": CLIENT_SECRET
-    }.items() if not v]
-    
-    print(f"❌ Błąd konfiguracji! Brakujące zmienne: {', '.join(missing)}")
+# 3. Logika sprawdzająca (Zastępuje Twój stary błąd w linii 20)
+missing_vars = []
+if not SUPABASE_URL: missing_vars.append("SUPABASE_URL")
+if not SUPABASE_KEY: missing_vars.append("SUPABASE_SERVICE_ROLE_KEY")
+if not CLIENT_ID: missing_vars.append("COPERNICUS_CLIENT_ID")
+if not CLIENT_SECRET: missing_vars.append("COPERNICUS_CLIENT_SECRET")
+
+if missing_vars:
+    print(f"❌ BŁĄD KONFIGURACJI: Brakujące zmienne: {', '.join(missing_vars)}")
+    # Na GitHubie to wypisze dokładnie czego brakuje w 'Secrets'
     raise ValueError("Brak wymaganych zmiennych środowiskowych.")
+
+# Inicjalizacja klienta
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 TOKEN_URL = "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token"
 STATS_API_URL = "https://sh.dataspace.copernicus.eu/api/v1/statistics"
