@@ -8,10 +8,25 @@ from supabase import create_client, Client
 load_dotenv()
 
 # --- KONFIGURACJA ---
+import os
+from dotenv import load_dotenv
+from supabase import create_client, Client
+
+# Próbuje załadować .env (zadziała lokalnie w IDX)
+# Na GitHubie to nic nie zrobi, bo pliku nie ma - i to jest OK
+load_dotenv()
+
+# Pobieranie zmiennych z systemu (GitHub Actions je tam wstawi)
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
 CLIENT_ID = os.environ.get("COPERNICUS_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("COPERNICUS_CLIENT_SECRET")
+
+# SPRAWDZANIE: Logujemy błąd tylko jeśli zmiennej NIE MA w ogóle w systemie
+if not all([SUPABASE_URL, SUPABASE_KEY, CLIENT_ID, CLIENT_SECRET]):
+    print(f"DEBUG: URL={bool(SUPABASE_URL)}, KEY={bool(SUPABASE_KEY)}, ID={bool(CLIENT_ID)}, SEC={bool(CLIENT_SECRET)}")
+    raise ValueError("❌ Brak kluczy w systemie! Sprawdź Repository Secrets na GitHubie.")
+
 
 TOKEN_URL = "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token"
 STATS_API_URL = "https://sh.dataspace.copernicus.eu/api/v1/statistics"
