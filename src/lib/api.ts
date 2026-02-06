@@ -24,12 +24,10 @@ export const fetchAppData = async (): Promise<AppData> => {
   const [stationsResult, statsResult] = await Promise.all([stationsPromise, statsPromise]);
 
   if (stationsResult.error) {
-    console.error('Error fetching stations:', stationsResult.error);
-    throw new Error('Could not fetch station data');
+    throw new Error(`Could not fetch station data: ${stationsResult.error.message}`);
   }
   if (statsResult.error) {
-    console.error('Error fetching stats:', statsResult.error);
-    throw new Error('Could not fetch station stats');
+    throw new Error(`Could not fetch station stats: ${statsResult.error.message}`);
   }
   
   // Sortujemy stacje, aby zachować spójność z UI
