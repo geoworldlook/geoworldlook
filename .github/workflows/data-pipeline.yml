@@ -1,0 +1,32 @@
+name: Daily Snow Watch Update
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # Codziennie o 08:00 UTC (9:00 PL)
+  workflow_dispatch: # Pozwala odpalić ręcznie guzikiem
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests supabase python-dotenv
+
+      - name: Run Copernicus Pipeline
+        env:
+          # Mapujemy sekrety GitHuba na zmienne środowiskowe skryptu
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COPERNICUS_CLIENT_ID: ${{ secrets.COPERNICUS_CLIENT_ID }}
+          COPERNICUS_CLIENT_SECRET: ${{ secrets.COPERNICUS_CLIENT_SECRET }}
+        run: python python/copernicus_client.py
