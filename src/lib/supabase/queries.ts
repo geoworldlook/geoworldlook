@@ -1,45 +1,85 @@
-
 import { createClient } from './server'
 import { Analysis, SpatialPoint } from '@/types/database.types'
 
-/**
- * Fetches analysis portfolio items.
- * Returns mock data if Supabase environment variables are missing.
- */
-export async function getAnalyses(): Promise<Analysis[]> {
-  const hasEnv = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const MOCK_ANALYSES: Analysis[] = [
+  {
+    id: '1',
+    title: 'Tatra Mountains Forest Dieback 2025',
+    category: 'forest',
+    date: '2026-02-20',
+    summary: 'Sentinel-2 NDVI time series analysis detecting bark beetle-induced defoliation across 1,200 ha of Norway spruce stands in the Tatra National Park.',
+    region: 'Tatra, PL',
+    status: 'active'
+  },
+  {
+    id: '2',
+    title: 'Warsaw Urban Heat Island Mapping',
+    category: 'urban',
+    date: '2026-01-15',
+    summary: 'Land Surface Temperature analysis using Landsat-8/9 thermal bands, quantifying urban heat island intensity across Warsaw metropolitan area.',
+    region: 'Warsaw, PL',
+    status: 'completed'
+  },
+  {
+    id: '3',
+    title: 'Biebrza Wetland Change Detection',
+    category: 'sar',
+    date: '2025-12-10',
+    summary: 'Sentinel-1 SAR coherence analysis to monitor seasonal flooding dynamics and vegetation changes in Biebrza National Park.',
+    region: 'Podlaskie, PL',
+    status: 'completed'
+  },
+  {
+    id: '4',
+    title: 'Mazovia Agricultural Monitoring',
+    category: 'agriculture',
+    date: '2025-11-05',
+    summary: 'Multi-temporal crop classification using Sentinel-2 spectral indices (NDVI, EVI, NDWI) for agricultural field segmentation and yield estimation.',
+    region: 'Mazovia, PL',
+    status: 'active'
+  },
+  {
+    id: '5',
+    title: 'Tri-City Coastal Erosion Monitoring',
+    category: 'sar',
+    date: '2025-10-20',
+    summary: 'SAR backscatter time series analysis detecting shoreline changes and coastal erosion along the Baltic Sea coast near Gdańsk.',
+    region: 'Pomerania, PL',
+    status: 'active'
+  },
+  {
+    id: '6',
+    title: 'Kraków Air Quality & LULC Correlation',
+    category: 'urban',
+    date: '2025-09-30',
+    summary: 'Land Use/Land Cover change analysis correlated with air quality station data to identify pollution source areas.',
+    region: 'Kraków, PL',
+    status: 'completed'
+  }
+]
 
-  if (!hasEnv) {
-    console.warn('Supabase credentials missing. Using mock analyses.')
-    return [
-      {
-        id: 'urban-growth-2024',
-        title: 'Post-Pandemic Urban Shift',
-        category: 'Urban Planning',
-        date: '2024-03-15',
-        summary: 'Analyzing the geospatial migration patterns of workforce in major US tech hubs using cellular geolocation metadata.',
-        region: 'United States',
-        status: 'completed'
-      },
-      {
-        id: 'amazon-deforestation',
-        title: 'Real-time Deforestation Alerting',
-        category: 'Environment',
-        date: '2024-01-20',
-        summary: 'Implementation of a localized change-detection algorithm using Sentinel-1 Radar data to bypass cloud cover.',
-        region: 'Amazon Basin',
-        status: 'active'
-      },
-      {
-        id: 'coastal-erosion-risk',
-        title: 'Sea Level Rise Risk Assessment',
-        category: 'Climate Risk',
-        date: '2023-11-05',
-        summary: 'Bathy-LiDAR integrated modeling of coastal resilience along the Florida coastline for insurance risk profiling.',
-        region: 'Florida, USA',
-        status: 'completed'
-      }
-    ] as Analysis[]
+const MOCK_SPATIAL_POINTS: SpatialPoint[] = [
+  { id: '1', lat: 49.23, lng: 19.98, value: 0.82, title: 'Tatra — Forest Stress Zone A' },
+  { id: '2', lat: 49.31, lng: 20.07, value: 0.65, title: 'Tatra — Forest Stress Zone B' },
+  { id: '3', lat: 49.18, lng: 19.91, value: 0.45, title: 'Tatra — Moderate Defoliation' },
+  { id: '4', lat: 52.23, lng: 21.01, value: 0.71, title: 'Warsaw — Heat Island Core' },
+  { id: '5', lat: 52.18, lng: 20.95, value: 0.55, title: 'Warsaw — Suburban Buffer' },
+  { id: '6', lat: 53.41, lng: 22.83, value: 0.38, title: 'Biebrza — Flood Zone' },
+  { id: '7', lat: 53.35, lng: 22.75, value: 0.29, title: 'Biebrza — Wetland Core' },
+  { id: '8', lat: 52.35, lng: 20.88, value: 0.60, title: 'Mazovia — Agricultural Field 1' },
+  { id: '9', lat: 52.41, lng: 21.15, value: 0.72, title: 'Mazovia — Agricultural Field 2' },
+  { id: '10', lat: 54.35, lng: 18.65, value: 0.44, title: 'Gdańsk — Coastal Erosion Zone' },
+  { id: '11', lat: 54.41, lng: 18.55, value: 0.51, title: 'Gdynia — Shoreline Change' },
+  { id: '12', lat: 50.06, lng: 19.94, value: 0.68, title: 'Kraków — LULC Change Zone' }
+]
+
+export async function getAnalyses(): Promise<Analysis[]> {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    console.warn('[GeoWorldLook] Supabase env vars missing — using mock data')
+    return MOCK_ANALYSES
   }
 
   try {
@@ -51,36 +91,24 @@ export async function getAnalyses(): Promise<Analysis[]> {
       .limit(50)
 
     if (error) {
-      console.error('Error fetching analyses:', error)
-      return []
+      console.error('[GeoWorldLook] Supabase error:', error.message)
+      return MOCK_ANALYSES
     }
 
-    return data as Analysis[]
+    return data ?? MOCK_ANALYSES
   } catch (e) {
-    console.error('Failed to initialize Supabase client:', e)
-    return []
+    console.error('[GeoWorldLook] Error initializing Supabase:', e)
+    return MOCK_ANALYSES
   }
 }
 
-/**
- * Fetches geospatial points for the map.
- * Returns mock data if Supabase environment variables are missing.
- */
 export async function getSpatialData(): Promise<SpatialPoint[]> {
-  const hasEnv = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!hasEnv) {
-    console.warn('Supabase credentials missing. Using mock spatial data.')
-    return [
-      { id: '1', lat: 52.2297, lng: 21.0122, value: 0.85, title: 'Warsaw Development Hub' },
-      { id: '2', lat: 48.8566, lng: 2.3522, value: 0.42, title: 'Paris Green Corridor' },
-      { id: '3', lat: 51.5074, lng: -0.1278, value: 0.91, title: 'London Thermal Island' },
-      { id: '4', lat: 40.7128, lng: -74.0060, value: 0.65, title: 'NYC Infrastructure Alert' },
-      { id: '5', lat: 34.0522, lng: -118.2437, value: 0.33, title: 'LA Transit Expansion' },
-      { id: '6', lat: -23.5505, lng: -46.6333, value: 0.77, title: 'São Paulo Urban Heat' },
-      { id: '7', lat: 35.6762, lng: 139.6503, value: 0.88, title: 'Tokyo Density Matrix' },
-      { id: '8', lat: 52.5200, lng: 13.4050, value: 0.55, title: 'Berlin Construction Node' }
-    ] as SpatialPoint[]
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    console.warn('[GeoWorldLook] Supabase env vars missing — using mock data')
+    return MOCK_SPATIAL_POINTS
   }
 
   try {
@@ -91,13 +119,13 @@ export async function getSpatialData(): Promise<SpatialPoint[]> {
       .limit(200)
 
     if (error) {
-      console.error('Error fetching spatial data:', error)
-      return []
+      console.error('[GeoWorldLook] Supabase error:', error.message)
+      return MOCK_SPATIAL_POINTS
     }
 
-    return data as SpatialPoint[]
+    return data ?? MOCK_SPATIAL_POINTS
   } catch (e) {
-    console.error('Failed to initialize Supabase client:', e)
-    return []
+    console.error('[GeoWorldLook] Error initializing Supabase:', e)
+    return MOCK_SPATIAL_POINTS
   }
 }
