@@ -1,5 +1,6 @@
 import React from 'react';
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'About | GeoWorldLook',
@@ -47,10 +48,16 @@ export default function AboutPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-16">
       <section className="py-16">
-        <p className="text-emerald-400 text-xs uppercase tracking-widest mb-3">About</p>
-        <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">Geospatial Data Scientist</h1>
+        <p className="text-emerald-400 text-xs uppercase tracking-widest mb-3">
+          About
+        </p>
+        <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          Geospatial Data Scientist
+        </h1>
         <p className="text-gray-400 text-lg max-w-2xl leading-relaxed">
-          Specialist in satellite imagery analysis, automated remote sensing pipelines and ML-driven environmental monitoring. Based in Warsaw, Poland.
+          Specialist in satellite imagery analysis, automated remote 
+          sensing pipelines and ML-driven environmental monitoring.
+          Based in Warsaw, Poland.
         </p>
       </section>
 
@@ -60,15 +67,31 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           <div className="lg:col-span-3 space-y-12">
             <div>
-              <h2 className="text-white font-semibold text-xl mb-4">Background</h2>
+              <h2 className="text-white font-semibold text-xl mb-4">
+                Background
+              </h2>
               <div className="space-y-4 text-gray-400 leading-relaxed">
-                <p>I bridge the gap between complex orbital data and actionable terrestrial insights. My work focuses on building the infrastructure that allows satellite observations to become a daily utility for environmental and urban decision-making.</p>
-                <p>Focused on operational remote sensing applications: forest health monitoring, urban thermal analysis and multi-temporal change detection using Sentinel-1/2 and Landsat constellations.</p>
+                <p>
+                  I bridge the gap between complex orbital data and actionable terrestrial insights. My work focuses on building the infrastructure that allows satellite observations to become a daily utility for environmental and urban decision-making.
+                </p>
+                <p>
+                  Focused on operational remote sensing applications:
+                  forest health monitoring, urban thermal analysis and 
+                  multi-temporal change detection using Sentinel-1/2 
+                  and Landsat satellite constellations.
+                </p>
+                <p>
+                  All analyses are powered by automated Python pipelines 
+                  that ingest, process and store satellite-derived 
+                  metrics daily into a PostGIS spatial database.
+                </p>
               </div>
             </div>
 
             <div>
-              <h2 className="text-white font-semibold text-xl mb-6">Experience</h2>
+              <h2 className="text-white font-semibold text-xl mb-6">
+                Experience
+              </h2>
               <div className="space-y-0">
                 {experiences.map((exp, idx) => (
                   <div key={idx} className="relative pl-6 border-l border-white/[0.08] pb-8 last:pb-0">
@@ -82,12 +105,14 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-6">
             <div className="bg-[#111] border border-white/[0.06] rounded-xl p-6">
-              <h3 className="text-white font-semibold mb-4">Technical Stack</h3>
+              <h3 className="text-white font-semibold mb-4">
+                Technical Stack
+              </h3>
               <div className="space-y-6">
                 {skillGroups.map((group, idx) => (
-                  <div key={idx}>
+                  <div key={idx} className="mb-4 last:mb-0">
                     <p className="text-gray-500 text-xs uppercase tracking-wider mb-2">{group.label}</p>
                     <div className="flex flex-wrap gap-2">
                       {group.tags.map((tag, tagIdx) => (
@@ -99,6 +124,14 @@ export default function AboutPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="bg-emerald-500/5 border border-emerald-400/20 rounded-xl p-6 text-center">
+              <p className="text-white font-medium mb-2">Available for projects</p>
+              <p className="text-gray-400 text-sm mb-4">Custom geospatial analysis and satellite data processing.</p>
+              <Link href="/contact" className="inline-block bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm px-5 py-2.5 rounded-lg transition-all">
+                Get in Touch
+              </Link>
             </div>
           </div>
         </div>

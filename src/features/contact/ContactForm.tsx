@@ -1,24 +1,27 @@
 "use client"
 
 import React, { useActionState } from 'react'
-import { submitContactForm, ContactState } from '@/app/contact/actions'
+import { submitContact, ContactFormState } from '@/app/contact/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Send, CheckCircle2, Loader2 } from 'lucide-react'
 
-const initialState: ContactState = {}
+const initialState: ContactFormState = {
+  status: 'idle',
+  message: ''
+}
 
 export default function ContactForm() {
-  const [state, formAction, isPending] = useActionState(submitContactForm, initialState)
+  const [state, formAction, isPending] = useActionState(submitContact, initialState)
 
-  if (state?.success) {
+  if (state?.status === 'success') {
     return (
       <div className="flex flex-col items-center justify-center py-12 space-y-4 animate-in zoom-in duration-500 text-center">
         <CheckCircle2 className="w-16 h-16 text-emerald-400" />
         <h3 className="text-2xl font-bold text-white">Message Sent!</h3>
-        <p className="text-gray-400 max-w-xs mx-auto">Thank you for reaching out. We've received your inquiry and will respond soon.</p>
+        <p className="text-gray-400 max-w-xs mx-auto">{state.message}</p>
         <Button 
           variant="outline" 
           className="border-emerald-400/20 text-emerald-400 hover:bg-emerald-400/10" 
@@ -43,6 +46,7 @@ export default function ContactForm() {
             required 
             disabled={isPending} 
           />
+          {state?.errors?.name && <p className="text-xs text-red-400 mt-1">{state.errors.name[0]}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="email" className="text-gray-400">Email Address</Label>
@@ -55,19 +59,39 @@ export default function ContactForm() {
             required 
             disabled={isPending} 
           />
+          {state?.errors?.email && <p className="text-xs text-red-400 mt-1">{state.errors.email[0]}</p>}
         </div>
       </div>
       
-      <div className="space-y-2">
-        <Label htmlFor="subject" className="text-gray-400">Subject</Label>
-        <Input 
-          id="subject" 
-          name="subject" 
-          placeholder="Data analysis inquiry" 
-          className="bg-black/40 border-white/[0.1] focus:border-emerald-400/50 text-white" 
-          required 
-          disabled={isPending} 
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="company" className="text-gray-400">Company (Optional)</Label>
+          <Input 
+            id="company" 
+            name="company" 
+            placeholder="Organization" 
+            className="bg-black/40 border-white/[0.1] focus:border-emerald-400/50 text-white" 
+            disabled={isPending} 
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="projectType" className="text-gray-400">Project Type</Label>
+          <select 
+            id="projectType" 
+            name="projectType" 
+            className="w-full h-10 rounded-md bg-black/40 border border-white/[0.1] focus:border-emerald-400/50 text-white px-3 text-sm focus:outline-none"
+            required 
+            disabled={isPending}
+          >
+            <option value="">Select type...</option>
+            <option value="forest-monitoring">Forest Monitoring</option>
+            <option value="urban-analysis">Urban Thermal Analysis</option>
+            <option value="agriculture">Agricultural Monitoring</option>
+            <option value="sar-change-detection">SAR Change Detection</option>
+            <option value="custom">Custom Analysis</option>
+          </select>
+          {state?.errors?.projectType && <p className="text-xs text-red-400 mt-1">{state.errors.projectType[0]}</p>}
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -75,16 +99,17 @@ export default function ContactForm() {
         <Textarea 
           id="message" 
           name="message" 
-          placeholder="Describe your project or spatial data needs..." 
+          placeholder="Describe your project, region of interest, and timeline..." 
           rows={5} 
           className="bg-black/40 border-white/[0.1] focus:border-emerald-400/50 text-white" 
           required 
           disabled={isPending} 
         />
+        {state?.errors?.message && <p className="text-xs text-red-400 mt-1">{state.errors.message[0]}</p>}
       </div>
 
-      {state?.error && (
-        <p className="text-sm text-red-400 font-medium animate-in fade-in slide-in-from-top-1">{state.error}</p>
+      {state?.status === 'error' && !state.errors && (
+        <p className="text-sm text-red-400 font-medium animate-in fade-in slide-in-from-top-1">{state.message}</p>
       )}
 
       <Button 
@@ -96,7 +121,7 @@ export default function ContactForm() {
         {isPending ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Processing...
+            Sending...
           </>
         ) : (
           <>

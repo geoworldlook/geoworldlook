@@ -1,14 +1,20 @@
-import React from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { PlaceHolderImages } from '@/lib/placeholder-images'
-import { ExternalLink, Calendar, MapPin, Activity } from 'lucide-react'
-import { getAnalyses } from '@/lib/supabase/queries'
+import React from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Metadata } from 'next';
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { ExternalLink, Calendar, MapPin, Activity } from 'lucide-react';
+import { getAnalyses } from '@/lib/supabase/queries';
+
+export const metadata: Metadata = {
+  title: 'Analyses | GeoWorldLook',
+  description: 'Deep dives into complex spatial problems, remote sensing, and automated processing pipelines.'
+};
 
 export default async function AnalysesPage() {
-  const analyses = await getAnalyses()
+  const analyses = await getAnalyses();
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-24 space-y-12">
@@ -19,7 +25,8 @@ export default async function AnalysesPage() {
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-white">Geospatial Analyses Portfolio</h1>
         <p className="text-lg text-gray-400 leading-relaxed">
-          Deep dives into complex spatial problems. Our portfolio showcases the intersection of remote sensing and automated processing pipelines.
+          Deep dives into complex spatial problems. Our portfolio showcases the intersection of remote sensing, 
+          automated processing pipelines, and domain-specific insights.
         </p>
       </div>
 
@@ -67,5 +74,5 @@ export default async function AnalysesPage() {
         })}
       </div>
     </div>
-  )
+  );
 }

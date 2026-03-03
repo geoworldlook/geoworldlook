@@ -29,8 +29,10 @@ export default function ContactPage() {
           <header>
             <p className="text-emerald-400 text-xs uppercase tracking-widest mb-3">Contact</p>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Start a Project</h1>
-            <p className="text-gray-400 leading-relaxed">
-              Have a region of interest? Need satellite-derived metrics for your area? Let's discuss what's possible with automated ML pipelines.
+            <p className="text-gray-400 leading-relaxed text-sm md:text-base">
+              Have a region of interest? Need satellite-derived 
+              metrics for your area? Let's discuss what's possible 
+              with current satellite constellations and automated ML pipelines.
             </p>
           </header>
 
@@ -49,7 +51,9 @@ export default function ContactPage() {
           </div>
 
           <div className="mt-12 bg-[#111] border border-white/[0.06] rounded-xl p-6">
-            <p className="text-white font-medium text-sm mb-4">Typical Deliverables</p>
+            <p className="text-white font-medium text-sm mb-4">
+              Typical Deliverables
+            </p>
             <div className="space-y-3">
               {deliverables.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-3">
@@ -62,7 +66,7 @@ export default function ContactPage() {
         </div>
 
         <div className="lg:col-span-3">
-          <div className="bg-[#111] border border-white/[0.06] rounded-xl p-8">
+          <div className="bg-[#111] border border-white/[0.06] rounded-xl p-6 md:p-8">
             <ContactForm />
           </div>
         </div>
