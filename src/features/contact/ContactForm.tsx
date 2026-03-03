@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useActionState } from 'react'
-import { submitContact, ContactFormState } from '@/app/contact/actions'
+import { submitContact, ContactFormState } from '@/app/(marketing)/contact/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
