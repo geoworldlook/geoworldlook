@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-map",
+      "description": "Satellite view of earth with data overlays",
+      "imageUrl": "https://images.unsplash.com/photo-1573490647684-928a2454f861?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzYXRlbGxpdGUlMjBlYXJ0aHxlbnwwfHx8fDE3NzI1NjA5NjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "satellite earth"
+    },
+    {
+      "id": "analysis-1",
+      "description": "Urban density heat map analysis",
+      "imageUrl": "https://picsum.photos/seed/geo2/800/600",
+      "imageHint": "urban heatmap"
+    },
+    {
+      "id": "analysis-2",
+      "description": "Deforestation monitoring visualization",
+      "imageUrl": "https://images.unsplash.com/photo-1716843140994-77c602d00186?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmb3Jlc3QlMjBzYXRlbGxpdGV8ZW58MHx8fHwxNzcyNTYwOTYxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "forest satellite"
+    },
+    {
+      "id": "analysis-3",
+      "description": "Coastal erosion time-lapse mapping",
+      "imageUrl": "https://images.unsplash.com/photo-1633822987257-d8bb429c9ba6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb2FzdCUyMG1hcHxlbnwwfHx8fDE3NzI1NjA5NjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coast map"
+    },
+    {
+      "id": "blog-1",
+      "description": "Digital globe with networking lines",
+      "imageUrl": "https://images.unsplash.com/photo-1634176866089-b633f4aec882?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaWdpdGFsJTIwZ2xvYmV8ZW58MHx8fHwxNzcyNTYwOTYxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "digital globe"
+    },
+    {
+      "id": "author-profile",
+      "description": "Professional headshot of the author",
+      "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzI0NjcyNTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional portrait"
+    }
+  ]
 }
