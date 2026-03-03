@@ -1,7 +1,6 @@
+
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import Navbar from '@/components/shared/Navbar';
-import Footer from '@/components/shared/Footer';
 import './globals.css';
 
 const inter = Inter({
@@ -27,12 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`dark ${inter.variable}`}>
-      <body className="bg-[#0a0a0a] text-white antialiased font-body min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
+      <body className="bg-[#0a0a0a] text-white antialiased font-body min-h-screen">
+        {children}
       </body>
     </html>
   );

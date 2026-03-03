@@ -1,5 +1,7 @@
+
 import React from 'react';
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'About | GeoWorldLook',
@@ -123,6 +125,14 @@ export default function AboutPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="bg-emerald-500/5 border border-emerald-400/20 rounded-xl p-6 text-center">
+              <p className="text-white font-medium mb-2">Available for projects</p>
+              <p className="text-gray-400 text-sm mb-4">Custom geospatial analysis and satellite data processing.</p>
+              <Link href="/contact" className="inline-block bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm px-5 py-2.5 rounded-lg transition-all">
+                Get in Touch
+              </Link>
             </div>
           </div>
         </div>

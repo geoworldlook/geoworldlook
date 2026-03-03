@@ -1,3 +1,4 @@
+
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Trees, Thermometer, Layers } from 'lucide-react'
@@ -11,10 +12,7 @@ export default async function LandingPage() {
     <div className="flex flex-col w-full">
       {/* SECTION 1 — HERO */}
       <section className="relative min-h-screen flex items-center bg-[#0a0a0a] overflow-hidden">
-        {/* Decorative Grid */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
-        
-        {/* Radial Glow */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px]" />
 
@@ -36,8 +34,8 @@ export default async function LandingPage() {
             
             <div className="flex flex-wrap gap-4">
               <Link href="/analyses" 
-                className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-8 py-4 rounded-lg transition-all duration-200 transform hover:scale-105">
-                Explore Portfolio
+                className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-8 py-4 rounded-lg transition-all duration-200">
+                Explore Analyses
                 <ArrowRight size={18} />
               </Link>
               <Link href="/contact"
@@ -84,9 +82,8 @@ export default async function LandingPage() {
             </p>
           </div>
           
-          <div className="w-full h-[600px] rounded-2xl border border-white/[0.06] shadow-2xl overflow-hidden relative group">
+          <div className="w-full h-[600px] rounded-2xl border border-white/[0.06] shadow-2xl overflow-hidden relative">
             <MapViewerWrapper points={spatialData} />
-            <div className="absolute inset-0 pointer-events-none border border-white/5 rounded-2xl" />
           </div>
           
           <p className="text-gray-600 text-xs mt-6 text-center italic">
@@ -95,17 +92,12 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* SECTION 4 — SERVICES CARDS */}
+      {/* SECTION 4 — SERVICES */}
       <section className="py-24 bg-[#0d0d0d] border-t border-white/[0.06]">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Core Capabilities</h2>
-            <div className="w-12 h-1 bg-emerald-500 mx-auto rounded-full" />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-8 hover:border-emerald-400/20 transition-all duration-300 group hover:shadow-[0_0_30px_rgba(16,185,129,0.05)]">
-              <div className="w-12 h-12 bg-emerald-400/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-8 hover:border-emerald-400/20 transition-all duration-300 group">
+              <div className="w-12 h-12 bg-emerald-400/10 rounded-xl flex items-center justify-center mb-6">
                 <Trees className="text-emerald-400 w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-white mb-4">Forest Monitoring</h3>
@@ -117,8 +109,8 @@ export default async function LandingPage() {
               </Link>
             </div>
 
-            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-8 hover:border-emerald-400/20 transition-all duration-300 group hover:shadow-[0_0_30px_rgba(16,185,129,0.05)]">
-              <div className="w-12 h-12 bg-emerald-400/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-8 hover:border-emerald-400/20 transition-all duration-300 group">
+              <div className="w-12 h-12 bg-emerald-400/10 rounded-xl flex items-center justify-center mb-6">
                 <Thermometer className="text-emerald-400 w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-white mb-4">Urban Heat Analysis</h3>
@@ -130,8 +122,8 @@ export default async function LandingPage() {
               </Link>
             </div>
 
-            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-8 hover:border-emerald-400/20 transition-all duration-300 group hover:shadow-[0_0_30px_rgba(16,185,129,0.05)]">
-              <div className="w-12 h-12 bg-emerald-400/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="bg-[#111] border border-white/[0.06] rounded-2xl p-8 hover:border-emerald-400/20 transition-all duration-300 group">
+              <div className="w-12 h-12 bg-emerald-400/10 rounded-xl flex items-center justify-center mb-6">
                 <Layers className="text-emerald-400 w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-white mb-4">Change Detection</h3>
@@ -148,9 +140,8 @@ export default async function LandingPage() {
 
       {/* SECTION 5 — CTA BANNER */}
       <section className="py-32 px-4 bg-[#0a0a0a]">
-        <div className="max-w-4xl mx-auto text-center bg-[#111] border border-emerald-400/10 rounded-[2.5rem] p-12 md:p-20 relative overflow-hidden shadow-2xl">
+        <div className="max-w-4xl mx-auto text-center bg-[#111] border border-emerald-400/10 rounded-[2.5rem] p-12 md:p-20 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
-          
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
             Custom Geospatial Insights
           </h2>
@@ -158,7 +149,7 @@ export default async function LandingPage() {
             Need specialized satellite processing or domain-specific analysis? Our automated pipeline delivers custom results for any coordinate globally.
           </p>
           <Link href="/contact"
-            className="inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-10 py-5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-xl shadow-emerald-500/10">
+            className="inline-flex items-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-10 py-5 rounded-xl transition-all hover:scale-105 shadow-xl shadow-emerald-500/10">
             Start Collaboration
             <ArrowRight size={20} />
           </Link>

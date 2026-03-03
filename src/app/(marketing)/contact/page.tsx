@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Metadata } from 'next';
 import { Mail, MapPin, Clock, CheckCircle } from 'lucide-react';
