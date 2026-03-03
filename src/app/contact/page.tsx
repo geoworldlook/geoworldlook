@@ -1,12 +1,5 @@
+import { redirect } from 'next/navigation';
 
-import React from 'react';
-import MarketingLayout from '../(marketing)/layout';
-import ContactContent from './content';
-
-export default function ContactPageWrapper() {
-  return (
-    <MarketingLayout>
-      <ContactContent />
-    </MarketingLayout>
-  );
+export default function ContactRedirect() {
+  redirect('/contact');
 }
