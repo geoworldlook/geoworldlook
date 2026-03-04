@@ -1,27 +1,24 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  experimental: {
-    serverComponentsExternalPackages: ['gray-matter']
-  },
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  serverExternalPackages: ['gray-matter'],
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '*.supabase.co',
-        port: '',
         pathname: '/storage/v1/object/public/**'
       },
       {
         protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**'
+      },
+      {
+        protocol: 'https',
         hostname: 'placehold.co',
-        port: '',
         pathname: '/**'
       }
     ]

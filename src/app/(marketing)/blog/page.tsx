@@ -1,10 +1,7 @@
-
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Metadata } from 'next';
 import { Card, CardTitle, CardDescription } from '@/components/ui/card';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, Clock, BookOpen } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -34,8 +31,6 @@ const blogPosts = [
 ];
 
 export default function BlogPage() {
-  const blogPlaceholder = PlaceHolderImages.find(img => img.id === 'blog-1');
-
   return (
     <div className="max-w-6xl mx-auto px-4 py-24 space-y-16">
       <div className="text-center space-y-4 max-w-3xl mx-auto">
@@ -54,16 +49,13 @@ export default function BlogPage() {
           <Link key={post.slug} href={`/blog/${post.slug}`} className="block">
             <Card className="group border-white/[0.06] bg-[#111]/50 hover:bg-[#111] hover:border-emerald-400/30 transition-all overflow-hidden p-0">
               <div className="flex flex-col md:flex-row">
-                <div className="md:w-1/3 relative h-64 md:h-auto overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
-                  <Image 
-                    src={blogPlaceholder?.imageUrl || ""} 
-                    alt={post.title} 
-                    fill
-                    className="object-cover"
-                    data-ai-hint="digital globe analysis"
-                  />
-                  <div className="absolute inset-0 bg-emerald-500/10 group-hover:bg-transparent transition-colors" />
+                {/* Styled Placeholder Div replacing external images */}
+                <div className="md:w-1/3 relative h-48 md:h-auto overflow-hidden bg-[#0d0d0d] flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-400/10 flex items-center justify-center">
+                    <span className="text-emerald-400 text-xl">◈</span>
+                  </div>
                 </div>
+
                 <div className="md:w-2/3 p-6 md:p-8 space-y-4">
                   <div className="flex flex-wrap gap-4 items-center text-xs text-gray-500">
                     <span className="bg-emerald-400/10 text-emerald-400 px-2 py-0.5 rounded uppercase font-mono tracking-widest">{post.date}</span>
