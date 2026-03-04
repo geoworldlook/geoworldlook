@@ -28,7 +28,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="/maplibre-gl.css" />
       </head>
-      <body className={`${inter.className} bg-[#0a0a0a] text-white antialiased font-body min-h-screen`}>
+      <body className={`${inter.className} bg-[#0a0a0a] text-white antialiased`}>
         {children}
       </body>
     </html>
