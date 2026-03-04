@@ -17,7 +17,6 @@ const blogPosts = [
     date: 'February 24, 2024',
     readTime: '8 min read',
     tags: ['Architecture', 'Raster', 'Sentinel'],
-    image: 'blog-1'
   },
   {
     slug: 'postgis-spatial-indexing-strategies',
@@ -26,7 +25,6 @@ const blogPosts = [
     date: 'February 12, 2024',
     readTime: '12 min read',
     tags: ['Database', 'PostgreSQL', 'PostGIS'],
-    image: 'blog-1'
   }
 ];
 
@@ -49,7 +47,6 @@ export default function BlogPage() {
           <Link key={post.slug} href={`/blog/${post.slug}`} className="block">
             <Card className="group border-white/[0.06] bg-[#111]/50 hover:bg-[#111] hover:border-emerald-400/30 transition-all overflow-hidden p-0">
               <div className="flex flex-col md:flex-row">
-                {/* Styled Placeholder Div replacing external images */}
                 <div className="md:w-1/3 relative h-48 md:h-auto overflow-hidden bg-[#0d0d0d] flex items-center justify-center shrink-0">
                   <div className="w-12 h-12 rounded-xl bg-emerald-400/10 flex items-center justify-center">
                     <span className="text-emerald-400 text-xl">◈</span>

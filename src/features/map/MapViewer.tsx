@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 
 import { MAP_CONFIG } from './config'
@@ -13,9 +13,17 @@ interface MapViewerProps {
 export default function MapViewer({ points }: MapViewerProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<maplibregl.Map | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    if (!mapContainer.current) return
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted || !mapContainer.current) return
+
+    // Ensure we are in a browser environment
+    if (typeof window === 'undefined') return
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
@@ -103,7 +111,18 @@ export default function MapViewer({ points }: MapViewerProps) {
     return () => {
       map.remove()
     }
-  }, [points])
+  }, [isMounted, points])
+
+  if (!isMounted) {
+    return (
+      <div className="w-full h-full rounded-xl bg-[#111] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
+          <p className="text-gray-500 text-xs font-medium uppercase tracking-widest">Loading Spatial Engine...</p>
+        </div>
+      </div>
+    )
+  }
 
   return <div ref={mapContainer} className="w-full h-full rounded-xl overflow-hidden" />
 }
