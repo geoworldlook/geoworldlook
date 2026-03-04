@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import maplibregl from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
+
 import { MAP_CONFIG } from './config'
 import type { SpatialPoint } from '@/types/database.types'
 

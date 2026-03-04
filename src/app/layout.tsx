@@ -24,8 +24,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable}`}>
-      <body className="bg-[#0a0a0a] text-white antialiased font-body min-h-screen">
+    <html lang="en" className="dark">
+      <head>
+        <link rel="stylesheet" href="/maplibre-gl.css" />
+      </head>
+      <body className={`${inter.className} bg-[#0a0a0a] text-white antialiased font-body min-h-screen`}>
         {children}
       </body>
     </html>
