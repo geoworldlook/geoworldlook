@@ -1,5 +1,5 @@
 import { createClient } from './server'
-import { Analysis, SpatialPoint } from '@/types/database.types'
+import { Analysis, SpatialPoint, VineyardBlock, VineyardStat } from '@/types/database.types'
 
 const MOCK_ANALYSES: Analysis[] = [
   {
@@ -73,6 +73,41 @@ const MOCK_SPATIAL_POINTS: SpatialPoint[] = [
   { id: '12', lat: 50.06, lng: 19.94, value: 0.68, title: 'Kraków — LULC Change Zone' }
 ]
 
+const MOCK_VINEYARD_BLOCKS: VineyardBlock[] = [
+  {
+    id: 'b1',
+    name: 'Parcela Nord Nebbiolo',
+    area_ha: 1.25,
+    geom: {
+      type: 'Polygon',
+      coordinates: [[
+        [19.01, 52.01],
+        [19.02, 52.01],
+        [19.02, 52.02],
+        [19.01, 52.02],
+        [19.01, 52.01]
+      ]]
+    },
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'b2',
+    name: 'Vigna del Bosco',
+    area_ha: 0.85,
+    geom: {
+      type: 'Polygon',
+      coordinates: [[
+        [19.05, 52.05],
+        [19.06, 52.05],
+        [19.06, 52.06],
+        [19.05, 52.06],
+        [19.05, 52.05]
+      ]]
+    },
+    created_at: new Date().toISOString()
+  }
+]
+
 export async function getAnalyses(): Promise<Analysis[]> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -127,5 +162,65 @@ export async function getSpatialData(): Promise<SpatialPoint[]> {
   } catch (e) {
     console.error('[GeoWorldLook] Error initializing Supabase:', e)
     return MOCK_SPATIAL_POINTS
+  }
+}
+
+export async function getVineyardBlocks(): Promise<VineyardBlock[]> {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    console.warn('[GeoWorldLook] Supabase env vars missing — using mock vineyard data')
+    return MOCK_VINEYARD_BLOCKS
+  }
+
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('vineyard_blocks')
+      .select('id, name, area_ha, geom, created_at')
+
+    if (error) {
+      console.error('[GeoWorldLook] Supabase error fetching vineyard blocks:', error.message)
+      return MOCK_VINEYARD_BLOCKS
+    }
+
+    return data ?? MOCK_VINEYARD_BLOCKS
+  } catch (e) {
+    console.error('[GeoWorldLook] Error fetching vineyard blocks:', e)
+    return MOCK_VINEYARD_BLOCKS
+  }
+}
+
+export async function getVineyardStats(blockId?: string): Promise<VineyardStat[]> {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    return []
+  }
+
+  try {
+    const supabase = await createClient()
+    let query = supabase
+      .from('vineyard_stats')
+      .select('block_id, date, cloud_cover, ndvi_mean, ndmi_mean')
+      .order('date', { ascending: false })
+
+    if (blockId) {
+      query = query.eq('block_id', blockId)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('[GeoWorldLook] Supabase error fetching vineyard stats:', error.message)
+      return []
+    }
+
+    return data ?? []
+  } catch (e) {
+    console.error('[GeoWorldLook] Error fetching vineyard stats:', e)
+    return []
   }
 }

@@ -1,11 +1,14 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Trees, Thermometer, Layers } from 'lucide-react'
-import { getSpatialData } from '@/lib/supabase/queries'
+import { getSpatialData, getVineyardBlocks } from '@/lib/supabase/queries'
 import MapViewerWrapper from '@/features/map/MapViewerWrapper'
 
 export default async function LandingPage() {
-  const spatialData = await getSpatialData()
+  const [spatialData, vineyardBlocks] = await Promise.all([
+    getSpatialData(),
+    getVineyardBlocks()
+  ])
 
   return (
     <div className="flex flex-col w-full">
@@ -86,7 +89,7 @@ export default async function LandingPage() {
           </div>
           
           <div className="w-full h-[500px] rounded-xl border border-white/[0.06] overflow-hidden">
-            <MapViewerWrapper points={spatialData} />
+            <MapViewerWrapper points={spatialData} vineyardBlocks={vineyardBlocks} />
           </div>
           
           <p className="text-gray-600 text-xs mt-3 text-center italic">
