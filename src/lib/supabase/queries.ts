@@ -1,5 +1,5 @@
 import { createClient } from './server'
-import { Analysis, SpatialPoint } from '@/types/database.types'
+import { Analysis, SpatialPoint, VineyardBlockWithStats } from '@/types/database.types'
 
 const MOCK_ANALYSES: Analysis[] = [
   {
@@ -73,6 +73,55 @@ const MOCK_SPATIAL_POINTS: SpatialPoint[] = [
   { id: '12', lat: 50.06, lng: 19.94, value: 0.68, title: 'Kraków — LULC Change Zone' }
 ]
 
+const MOCK_VINEYARD_BLOCKS: VineyardBlockWithStats[] = [
+  {
+    id: 'b1',
+    name: 'Parcela Nord Nebbiolo',
+    area_ha: 2.5,
+    geom: {
+      type: 'Polygon',
+      coordinates: [[
+        [10.12, 44.55],
+        [10.13, 44.55],
+        [10.13, 44.56],
+        [10.12, 44.56],
+        [10.12, 44.55]
+      ]]
+    },
+    created_at: new Date().toISOString(),
+    latest_stats: {
+      block_id: 'b1',
+      date: '2024-05-15',
+      cloud_cover: 0.1,
+      ndvi_mean: 0.75,
+      ndmi_mean: 0.12
+    }
+  },
+  {
+    id: 'b2',
+    name: 'Parcela South Sangiovese',
+    area_ha: 1.8,
+    geom: {
+      type: 'Polygon',
+      coordinates: [[
+        [10.14, 44.54],
+        [10.15, 44.54],
+        [10.15, 44.55],
+        [10.14, 44.55],
+        [10.14, 44.54]
+      ]]
+    },
+    created_at: new Date().toISOString(),
+    latest_stats: {
+      block_id: 'b2',
+      date: '2024-05-15',
+      cloud_cover: 0.1,
+      ndvi_mean: 0.62,
+      ndmi_mean: 0.08
+    }
+  }
+]
+
 export async function getAnalyses(): Promise<Analysis[]> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -127,5 +176,32 @@ export async function getSpatialData(): Promise<SpatialPoint[]> {
   } catch (e) {
     console.error('[GeoWorldLook] Error initializing Supabase:', e)
     return MOCK_SPATIAL_POINTS
+  }
+}
+
+export async function getVineyardBlocks(): Promise<VineyardBlockWithStats[]> {
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    console.warn('[GeoWorldLook] Supabase env vars missing — using mock data')
+    return MOCK_VINEYARD_BLOCKS
+  }
+
+  try {
+    const supabase = await createClient()
+
+    // Using RPC to get blocks with GeoJSON and latest stats
+    const { data, error } = await supabase.rpc('get_blocks_with_stats')
+
+    if (error) {
+      console.error('[GeoWorldLook] Supabase error:', error.message)
+      return MOCK_VINEYARD_BLOCKS
+    }
+
+    return data ?? MOCK_VINEYARD_BLOCKS
+  } catch (e) {
+    console.error('[GeoWorldLook] Error initializing Supabase:', e)
+    return MOCK_VINEYARD_BLOCKS
   }
 }
