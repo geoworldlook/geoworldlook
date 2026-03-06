@@ -1,4 +1,6 @@
 
+'use server';
+
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
@@ -19,16 +21,22 @@ export interface NotebookContent {
 
 const NOTEBOOKS_PATH = path.join(process.cwd(), 'src', 'content', 'notebooks');
 
-export function getAllNotebooks(): (NotebookMetadata & { slug: string })[] {
+/**
+ * Ensures the notebook directory exists.
+ */
+function ensureDir() {
   if (!fs.existsSync(NOTEBOOKS_PATH)) {
-    try {
-      fs.mkdirSync(NOTEBOOKS_PATH, { recursive: true });
-    } catch (e) {
-      console.error(`[Notebooks] Could not create directory: ${NOTEBOOKS_PATH}`);
-      return [];
-    }
+    fs.mkdirSync(NOTEBOOKS_PATH, { recursive: true });
+    // Add a placeholder to keep the directory in git if empty
+    fs.writeFileSync(path.join(NOTEBOOKS_PATH, '.gitkeep'), '');
   }
+}
 
+/**
+ * Retrieves metadata for all notebooks in the content directory.
+ */
+export async function getAllNotebooks(): Promise<(NotebookMetadata & { slug: string })[]> {
+  ensureDir();
   const files = fs.readdirSync(NOTEBOOKS_PATH).filter(f => f.endsWith('.ipynb'));
 
   const notebooks = files.map(filename => {
@@ -38,11 +46,11 @@ export function getAllNotebooks(): (NotebookMetadata & { slug: string })[] {
     try {
       const content = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
       const firstCell = content.cells[0];
+      
       if (firstCell && firstCell.cell_type === 'markdown') {
         const source = Array.isArray(firstCell.source) ? firstCell.source.join('') : firstCell.source;
-        const yamlMatch = source.match(/```yaml([\s\S]*?)```/) || source.match(/---([\s\S]*?)---/);
-        const cleanYaml = yamlMatch ? yamlMatch[1].trim() : source.trim();
-        const metadata = yaml.parse(cleanYaml) as NotebookMetadata;
+        // Parse YAML metadata from the first cell
+        const metadata = yaml.parse(source.replace(/---/g, '').trim()) as NotebookMetadata;
         return {
           slug,
           ...metadata
@@ -58,7 +66,10 @@ export function getAllNotebooks(): (NotebookMetadata & { slug: string })[] {
   return notebooks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-export function getNotebookBySlug(slug: string): NotebookContent | null {
+/**
+ * Retrieves a full notebook by its slug.
+ */
+export async function getNotebookBySlug(slug: string): Promise<NotebookContent | null> {
   try {
     const fullPath = path.join(NOTEBOOKS_PATH, `${slug}.ipynb`);
     if (!fs.existsSync(fullPath)) return null;
@@ -69,14 +80,12 @@ export function getNotebookBySlug(slug: string): NotebookContent | null {
     if (!firstCell || firstCell.cell_type !== 'markdown') return null;
 
     const source = Array.isArray(firstCell.source) ? firstCell.source.join('') : firstCell.source;
-    const yamlMatch = source.match(/```yaml([\s\S]*?)```/) || source.match(/---([\s\S]*?)---/);
-    const cleanYaml = yamlMatch ? yamlMatch[1].trim() : source.trim();
-    const metadata = yaml.parse(cleanYaml) as NotebookMetadata;
+    const metadata = yaml.parse(source.replace(/---/g, '').trim()) as NotebookMetadata;
 
     return {
       slug,
       metadata,
-      cells: content.cells.slice(1)
+      cells: content.cells.slice(1) // Skip the metadata cell
     };
   } catch (error) {
     console.error(`[Notebooks] Error loading notebook ${slug}:`, error);

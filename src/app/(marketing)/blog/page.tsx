@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   description: 'Technical articles on remote sensing, satellite data pipelines, and high-performance spatial database optimization.'
 };
 
-export default function BlogPage() {
-  const notebooks = getAllNotebooks();
+export default async function BlogPage() {
+  const notebooks = await getAllNotebooks();
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-24 space-y-16">
@@ -37,9 +37,10 @@ export default function BlogPage() {
             <Link key={post.slug} href={`/blog/${post.slug}`} className="block">
               <Card className="group border-white/[0.06] bg-[#111]/50 hover:bg-[#111] hover:border-emerald-400/30 transition-all overflow-hidden p-0">
                 <div className="flex flex-col md:flex-row">
+                  {/* Styled Placeholder Div */}
                   <div className="md:w-1/3 relative h-48 md:h-auto overflow-hidden bg-[#0d0d0d] flex items-center justify-center shrink-0">
-                    <div className="w-16 h-16 rounded-2xl bg-emerald-400/5 flex items-center justify-center border border-emerald-400/10">
-                      <span className="text-emerald-400 text-2xl font-mono">ipynb</span>
+                    <div className="w-12 h-12 rounded-xl bg-emerald-400/10 flex items-center justify-center">
+                      <span className="text-emerald-400 text-xl font-mono">◈</span>
                     </div>
                   </div>
 

@@ -15,7 +15,7 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const notebooks = getAllNotebooks();
+  const notebooks = await getAllNotebooks();
   return notebooks.map((post) => ({
     slug: post.slug,
   }));
@@ -23,7 +23,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const notebook = getNotebookBySlug(slug);
+  const notebook = await getNotebookBySlug(slug);
   
   if (!notebook) return { title: 'Post Not Found' };
 
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const notebook = getNotebookBySlug(slug);
+  const notebook = await getNotebookBySlug(slug);
 
   if (!notebook) {
     notFound();
