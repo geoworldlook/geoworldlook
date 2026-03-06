@@ -1,0 +1,34 @@
+name: Copernicus Sentinel-2 ETL
+
+on:
+  workflow_dispatch: # Pozwala na ręczne kliknięcie "Run workflow" w panelu GitHub
+  schedule:
+    - cron: '0 3 * * *' # Automatyczne uruchomienie codziennie o 03:00 UTC
+
+jobs:
+  sync-satellite-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests supabase python-dotenv
+
+      - name: 🚀 Run ETL Pipeline (Copernicus -> Supabase)
+        env:
+          # Mapowanie sekretów z GitHub do zmiennych środowiskowych skryptu
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COPERNICUS_CLIENT_ID: ${{ secrets.COPERNICUS_CLIENT_ID }}
+          COPERNICUS_CLIENT_SECRET: ${{ secrets.COPERNICUS_CLIENT_SECRET }}
+        # Upewnij się, że ścieżka do skryptu poniżej zgadza się z tą w Twoim repozytorium
+        run: python scripts/backfill_copernicus.py
