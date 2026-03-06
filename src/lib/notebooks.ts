@@ -1,3 +1,4 @@
+
 import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
@@ -30,17 +31,20 @@ export function getAllNotebooks(): (NotebookMetadata & { slug: string })[] {
     const fullPath = path.join(NOTEBOOKS_PATH, filename);
     const content = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
 
-    // Extract YAML from first cell
     const firstCell = content.cells[0];
     if (firstCell && firstCell.cell_type === 'markdown') {
       const source = Array.isArray(firstCell.source) ? firstCell.source.join('') : firstCell.source;
-      const cleanYaml = source.replace(/---/g, '').trim();
-      const metadata = yaml.parse(cleanYaml) as NotebookMetadata;
-      
-      return {
-        slug,
-        ...metadata
-      };
+      const cleanYaml = source.replace(/```yaml|```/g, '').replace(/---/g, '').trim();
+      try {
+        const metadata = yaml.parse(cleanYaml) as NotebookMetadata;
+        return {
+          slug,
+          ...metadata
+        };
+      } catch (e) {
+        console.error(`Error parsing YAML in ${filename}:`, e);
+        return null;
+      }
     }
     
     return null;
@@ -60,13 +64,13 @@ export function getNotebookBySlug(slug: string): NotebookContent | null {
     if (!firstCell || firstCell.cell_type !== 'markdown') return null;
 
     const source = Array.isArray(firstCell.source) ? firstCell.source.join('') : firstCell.source;
-    const cleanYaml = source.replace(/---/g, '').trim();
+    const cleanYaml = source.replace(/```yaml|```/g, '').replace(/---/g, '').trim();
     const metadata = yaml.parse(cleanYaml) as NotebookMetadata;
 
     return {
       slug,
       metadata,
-      cells: content.cells.slice(1) // Skip metadata cell
+      cells: content.cells.slice(1)
     };
   } catch (error) {
     console.error(`Error parsing notebook ${slug}:`, error);

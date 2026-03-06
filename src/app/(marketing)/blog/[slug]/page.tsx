@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
@@ -42,7 +43,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <article className="max-w-4xl mx-auto px-4 py-24">
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-12">
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-12 font-body">
         <Link href="/blog" className="text-emerald-400 hover:underline transition-all">Blog</Link>
         <ChevronRight size={14} />
         <span className="truncate">{notebook.metadata.title}</span>
@@ -93,7 +94,6 @@ export default async function BlogPostPage({ params }: Props) {
           if (cell.cell_type === 'code') {
             return (
               <div key={idx} className="space-y-4">
-                {/* Code Input */}
                 <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-[#0d0d0d]">
                   <div className="bg-[#1a1a1a] px-4 py-2 flex items-center justify-between border-b border-white/[0.06]">
                     <span className="text-[10px] text-gray-500 font-mono flex items-center gap-2">
@@ -107,11 +107,9 @@ export default async function BlogPostPage({ params }: Props) {
                   </pre>
                 </div>
 
-                {/* Code Outputs */}
                 {cell.outputs && cell.outputs.length > 0 && (
                   <div className="space-y-4">
                     {cell.outputs.map((output: any, outIdx: number) => {
-                      // Text output (stdout or text/plain)
                       if (output.output_type === 'stream' || (output.data && output.data['text/plain'])) {
                         const text = output.text 
                           ? (Array.isArray(output.text) ? output.text.join('') : output.text)
@@ -124,22 +122,17 @@ export default async function BlogPostPage({ params }: Props) {
                         );
                       }
 
-                      // Image output
                       if (output.data && output.data['image/png']) {
                         return (
                           <div key={outIdx} className="bg-white/5 rounded-xl p-4 border border-white/[0.06]">
                             <img 
                               src={`data:image/png;base64,${output.data['image/png']}`} 
-                              alt="Notebook visualization" 
+                              alt="Analysis Output" 
                               className="mx-auto rounded-lg shadow-2xl max-w-full h-auto"
                             />
-                            <p className="text-center text-[10px] text-gray-600 mt-4 uppercase tracking-widest font-mono">
-                              Automated Pipeline Visualization Output
-                            </p>
                           </div>
                         );
                       }
-
                       return null;
                     })}
                   </div>
@@ -147,28 +140,9 @@ export default async function BlogPostPage({ params }: Props) {
               </div>
             );
           }
-
           return null;
         })}
       </div>
-
-      <footer className="mt-24 pt-12 border-t border-white/[0.06]">
-        <div className="bg-[#111] rounded-2xl p-8 text-center space-y-4 border border-emerald-400/10">
-          <h3 className="text-white font-bold text-xl">Enjoyed this analysis?</h3>
-          <p className="text-gray-400 max-w-md mx-auto">
-            I regularly export technical notebooks from my remote sensing research. 
-            Follow me for more deep dives into geospatial data engineering.
-          </p>
-          <div className="pt-4 flex justify-center gap-4">
-             <Link href="/contact" className="bg-emerald-500 hover:bg-emerald-400 text-black px-6 py-2 rounded-lg font-bold transition-all text-sm">
-               Discuss Project
-             </Link>
-             <Link href="/blog" className="border border-white/10 hover:border-white/20 text-white px-6 py-2 rounded-lg font-bold transition-all text-sm">
-               More Articles
-             </Link>
-          </div>
-        </div>
-      </footer>
     </article>
   );
 }
