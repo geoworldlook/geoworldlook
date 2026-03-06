@@ -36,7 +36,7 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
     .map(d => d.date);
 
   return (
-    <Card className="absolute top-4 right-4 w-[calc(100%-2rem)] sm:w-80 md:w-96 max-h-[calc(100%-2rem)] flex flex-col shadow-2xl border-white/[0.08] bg-black/90 backdrop-blur-xl animate-in slide-in-from-right duration-300 z-[1000] overflow-hidden">
+    <Card className="absolute top-4 right-4 bottom-4 w-[calc(100%-2rem)] sm:w-80 md:w-96 flex flex-col shadow-2xl border-white/[0.08] bg-black/95 backdrop-blur-xl animate-in slide-in-from-right duration-300 z-[1000] overflow-hidden">
       {/* Header - Fixed */}
       <CardHeader className="flex flex-row items-center justify-between pb-4 space-y-0 border-b border-white/[0.05] shrink-0">
         <div>
@@ -49,8 +49,8 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
         </Button>
       </CardHeader>
       
-      {/* Scrollable Content */}
-      <CardContent className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+      {/* Scrollable Content - flex-1 and min-h-0 are critical for scrolling */}
+      <CardContent className="flex-1 overflow-y-auto min-h-0 custom-scrollbar p-6 space-y-6">
         {!latestData ? (
           <div className="py-12 flex flex-col items-center justify-center text-center space-y-2">
             <AlertCircle className="text-gray-600 w-8 h-8" />
@@ -59,7 +59,7 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
         ) : (
           <>
             {/* KPI Section */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 shrink-0">
               <div className="bg-white/[0.03] p-4 rounded-xl border border-white/[0.05] group hover:border-emerald-500/30 transition-colors">
                 <p className="text-[10px] text-gray-500 uppercase font-bold mb-2 flex items-center gap-1.5">
                   <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> NDVI Index
@@ -78,10 +78,10 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
               </div>
             </div>
 
-            {/* Chart Container - Fixed Height for Stability */}
-            <div className="space-y-3">
+            {/* Chart Container - Locked height prevents Recharts expansion loop */}
+            <div className="space-y-3 shrink-0">
               <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">12-Month Vegetation Trend</p>
-              <div className="h-48 w-full relative group bg-white/[0.02] rounded-xl border border-white/[0.05] p-2">
+              <div className="h-[220px] min-h-[220px] w-full relative group bg-white/[0.02] rounded-xl border border-white/[0.05] p-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" vertical={false} />
@@ -130,7 +130,7 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
             </div>
 
             {/* Additional Info / Legend */}
-            <div className="bg-emerald-500/5 rounded-lg p-3 border border-emerald-500/10">
+            <div className="bg-emerald-500/5 rounded-lg p-3 border border-emerald-500/10 shrink-0">
               <p className="text-[11px] text-gray-400 leading-relaxed">
                 <span className="text-emerald-400 font-bold mr-1">Phenology Insight:</span>
                 Higher NDVI values (0.6+) indicate dense, healthy vegetation, while values below 0.3 typically suggest bare soil or harvested areas.
