@@ -40,7 +40,8 @@ export default function MapViewer({ points }: MapViewerProps) {
 
     mapInstance.current = map
 
-    map.addControl(new maplibregl.NavigationControl(), 'bottom-right')
+    // Position navigation controls at bottom-left to prevent overlap with the StationPanel on the right
+    map.addControl(new maplibregl.NavigationControl(), 'bottom-left')
 
     map.on('load', () => {
       // 1. Existing Spatial Points Layer
