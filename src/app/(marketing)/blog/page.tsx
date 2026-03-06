@@ -30,19 +30,17 @@ export default function BlogPage() {
       <div className="space-y-8 max-w-5xl mx-auto">
         {notebooks.length === 0 ? (
           <div className="text-center py-20 border border-white/[0.06] rounded-2xl bg-[#111]/30">
-            <p className="text-gray-500">No technical articles found. Check back soon for new notebook exports.</p>
+            <p className="text-gray-500">No technical articles found. Add .ipynb files to src/content/notebooks/ to get started.</p>
           </div>
         ) : (
           notebooks.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="block">
               <Card className="group border-white/[0.06] bg-[#111]/50 hover:bg-[#111] hover:border-emerald-400/30 transition-all overflow-hidden p-0">
                 <div className="flex flex-col md:flex-row">
-                  {/* Decorative Side Panel */}
                   <div className="md:w-1/3 relative h-48 md:h-auto overflow-hidden bg-[#0d0d0d] flex items-center justify-center shrink-0">
                     <div className="w-16 h-16 rounded-2xl bg-emerald-400/5 flex items-center justify-center border border-emerald-400/10">
                       <span className="text-emerald-400 text-2xl font-mono">ipynb</span>
                     </div>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,transparent_70%)]" />
                   </div>
 
                   <div className="md:w-2/3 p-6 md:p-8 space-y-4">
