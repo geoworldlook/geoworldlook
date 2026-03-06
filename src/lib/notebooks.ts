@@ -25,6 +25,27 @@ export interface NotebookContent {
 
 const NOTEBOOKS_DIR = path.join(process.cwd(), 'src/content/notebooks');
 
+/**
+ * Helper to extract and parse YAML from a markdown string.
+ * Handles raw YAML, YAML wrapped in --- delimiters, or YAML in code blocks.
+ */
+function parseMetadata(source: string): Partial<NotebookMetadata> {
+  let content = source.trim();
+  
+  // Remove markdown code block markers if present (```yaml ... ``` or ``` ...)
+  content = content.replace(/^```(?:yaml)?\n/i, '').replace(/\n```$/m, '');
+  
+  // Remove horizontal rule / frontmatter delimiters (--- ... ---)
+  content = content.replace(/^---\n/m, '').replace(/\n---$/m, '');
+  
+  try {
+    return yaml.parse(content) || {};
+  } catch (e) {
+    console.error('Failed to parse notebook metadata YAML:', e);
+    return {};
+  }
+}
+
 export async function getAllNotebooks() {
   if (!fs.existsSync(NOTEBOOKS_DIR)) {
     return [];
@@ -37,7 +58,7 @@ export async function getAllNotebooks() {
     const filePath = path.join(NOTEBOOKS_DIR, filename);
     const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     
-    // First cell is metadata YAML in a markdown cell
+    // First cell is expected to be a markdown cell containing metadata
     const firstCell = content.cells[0];
     let metadata: NotebookMetadata = {
       title: slug.replace(/-/g, ' '),
@@ -49,13 +70,8 @@ export async function getAllNotebooks() {
 
     if (firstCell && firstCell.cell_type === 'markdown') {
       const source = Array.isArray(firstCell.source) ? firstCell.source.join('') : firstCell.source;
-      const cleanYaml = source.replace(/---/g, '').trim();
-      try {
-        const parsed = yaml.parse(cleanYaml);
-        metadata = { ...metadata, ...parsed };
-      } catch (e) {
-        console.error(`Error parsing YAML in ${filename}:`, e);
-      }
+      const parsed = parseMetadata(source);
+      metadata = { ...metadata, ...parsed };
     }
 
     return { slug, ...metadata };
@@ -85,8 +101,8 @@ export async function getNotebookBySlug(slug: string): Promise<NotebookContent |
 
     if (firstCell && firstCell.cell_type === 'markdown') {
       const source = Array.isArray(firstCell.source) ? firstCell.source.join('') : firstCell.source;
-      const cleanYaml = source.replace(/---/g, '').trim();
-      metadata = { ...metadata, ...yaml.parse(cleanYaml) };
+      const parsed = parseMetadata(source);
+      metadata = { ...metadata, ...parsed };
     }
 
     return {
