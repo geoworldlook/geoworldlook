@@ -103,7 +103,6 @@ export default async function BlogPostPage({ params }: Props) {
                 {cell.outputs && cell.outputs.length > 0 && (
                   <div className="space-y-3">
                     {cell.outputs.map((output: any, oIdx: number) => {
-                      // Text outputs
                       if (output.output_type === 'stream' || (output.data && output.data['text/plain'])) {
                         const text = output.text ? 
                           (Array.isArray(output.text) ? output.text.join('') : output.text) : 
@@ -116,7 +115,6 @@ export default async function BlogPostPage({ params }: Props) {
                         );
                       }
 
-                      // Image outputs
                       if (output.data && output.data['image/png']) {
                         return (
                           <div key={oIdx} className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex justify-center">
