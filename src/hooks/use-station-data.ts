@@ -63,8 +63,8 @@ export function useStationData() {
 
       return (data || []).map((d: any) => ({
         date: d.date,
-        ndvi_index: d.ndvi_index,
-        cloud_cover: d.cloud_cover
+        ndvi_index: Number(d.ndvi_index), // TWARDE RZUTOWANIE NA LICZBĘ //ndvi_index: d.ndvi_index,
+        cloud_cover: Number(d.cloud_cover) // TWARDE RZUTOWANIE NA LICZBĘ//cloud_cover: d.cloud_cover
       }));
     } catch (err: any) {
       console.error(`Error fetching stats for station ${stationId}:`, err);
