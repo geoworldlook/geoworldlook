@@ -38,8 +38,8 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
     .map(d => d.date);
 
   return (
-    <Card className="absolute top-4 right-4 w-80 md:w-96 shadow-2xl border-white/[0.08] bg-black/90 backdrop-blur-xl animate-in slide-in-from-right duration-300 z-[1000] overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 border-b border-white/[0.05]">
+    <Card className="absolute top-4 right-4 w-[calc(100%-2rem)] sm:w-80 md:w-96 max-h-[calc(100vh-32px)] flex flex-col shadow-2xl border-white/[0.08] bg-black/90 backdrop-blur-xl animate-in slide-in-from-right duration-300 z-[1000] overflow-hidden">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 border-b border-white/[0.05] shrink-0">
         <div>
           <p className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Station Telemetry</p>
           <CardTitle className="text-lg text-white font-semibold">{station.name}</CardTitle>
@@ -50,7 +50,7 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
         </Button>
       </CardHeader>
       
-      <CardContent className="pt-6 space-y-6">
+      <CardContent className="pt-6 space-y-6 overflow-y-auto custom-scrollbar flex-grow">
         {!latestData ? (
           <div className="py-8 flex flex-col items-center justify-center text-center space-y-2">
             <AlertCircle className="text-gray-600 w-8 h-8" />
@@ -63,7 +63,7 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
                 <p className="text-[10px] text-gray-500 uppercase font-bold mb-2 flex items-center gap-1.5">
                   <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> NDVI Index
                 </p>
-                <p className="text-3xl font-bold text-white tracking-tighter">
+                <p className="text-2xl font-bold text-white tracking-tighter">
                   {latestData.ndvi_index.toFixed(3)}
                 </p>
               </div>
@@ -77,7 +77,7 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
               </div>
             </div>
 
-            <div className="h-56 w-full relative group">
+            <div className="h-56 w-full relative group shrink-0">
               <div className="absolute inset-0 bg-emerald-500/5 rounded-xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
@@ -126,7 +126,7 @@ export default function StationPanel({ station, onClose }: StationPanelProps) {
               </ResponsiveContainer>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-white/[0.05]">
+            <div className="flex items-center justify-between pt-2 border-t border-white/[0.05] shrink-0">
               <div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono">
                 <Calendar className="w-3 h-3 text-emerald-400/50" />
                 SYNC: {latestData.date}
