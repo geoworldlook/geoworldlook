@@ -4,144 +4,55 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, Calendar, ChevronRight } from 'lucide-react';
-import { getNotebookBySlug, getAllNotebooks } from '@/lib/notebooks';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeHighlight from 'rehype-highlight';
-import 'highlight.js/styles/github-dark.css';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  const notebooks = await getAllNotebooks();
-  return notebooks.map((post) => ({
-    slug: post.slug,
-  }));
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const notebook = await getNotebookBySlug(slug);
-  
-  if (!notebook) return { title: 'Post Not Found' };
-
-  return {
-    title: `${notebook.metadata.title} | GeoWorldLook`,
-    description: notebook.metadata.summary
-  };
+  return [
+    { slug: 'sentinel-2-forest-monitoring' },
+    { slug: 'postgis-optimization-large-datasets' },
+    { slug: 'urban-heat-island-landsat-8' }
+  ];
 }
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const notebook = await getNotebookBySlug(slug);
-
-  if (!notebook) {
+  
+  // Simple check for valid slugs (replaces complex notebook logic)
+  const validSlugs = ['sentinel-2-forest-monitoring', 'postgis-optimization-large-datasets', 'urban-heat-island-landsat-8'];
+  if (!validSlugs.includes(slug)) {
     notFound();
   }
 
   return (
     <article className="max-w-4xl mx-auto px-4 py-24">
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-12 font-body">
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-12">
         <Link href="/blog" className="text-emerald-400 hover:underline transition-all">Blog</Link>
         <ChevronRight size={14} />
-        <span className="truncate">{notebook.metadata.title}</span>
+        <span className="truncate">Article Details</span>
       </div>
 
       <Link href="/blog" className="inline-flex items-center gap-2 text-emerald-400 text-sm font-medium mb-8 hover:gap-3 transition-all">
         <ArrowLeft size={16} />
-        Back to Index
+        Back to Blog
       </Link>
 
       <header className="mb-16">
-        <div className="flex flex-wrap gap-6 items-center text-xs text-gray-500 mb-6 font-mono uppercase tracking-widest">
-          <span className="flex items-center gap-2">
-            <Calendar size={14} className="text-emerald-400" /> 
-            {new Date(notebook.metadata.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-          </span>
-          <span className="flex items-center gap-2">
-            <Clock size={14} className="text-emerald-400" /> 
-            {notebook.metadata.readTime}
-          </span>
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-          {notebook.metadata.title}
+        <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight capitalize">
+          {slug.replace(/-/g, ' ')}
         </h1>
-        <div className="flex flex-wrap gap-2">
-          {notebook.metadata.tags.map(tag => (
-            <span key={tag} className="text-[10px] font-mono border border-emerald-400/20 text-emerald-400 px-2 py-0.5 rounded uppercase tracking-wider">
-              {tag}
-            </span>
-          ))}
+        <div className="flex items-center gap-6 text-xs text-gray-500 font-mono uppercase tracking-widest">
+          <span className="flex items-center gap-2"><Calendar size={14} className="text-emerald-400" /> Feb 20, 2026</span>
+          <span className="flex items-center gap-2"><Clock size={14} className="text-emerald-400" /> 10 min read</span>
         </div>
       </header>
 
-      <div className="space-y-12">
-        {notebook.cells.map((cell, idx) => {
-          const source = Array.isArray(cell.source) ? cell.source.join('') : cell.source;
-
-          if (cell.cell_type === 'markdown') {
-            return (
-              <div key={idx} className="prose prose-invert prose-emerald max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
-                  {source}
-                </ReactMarkdown>
-              </div>
-            );
-          }
-
-          if (cell.cell_type === 'code') {
-            return (
-              <div key={idx} className="space-y-4">
-                <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-[#0d0d0d]">
-                  <div className="bg-[#1a1a1a] px-4 py-2 flex items-center justify-between border-b border-white/[0.06]">
-                    <span className="text-[10px] text-gray-500 font-mono flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                      python source
-                    </span>
-                    <span className="text-[10px] text-gray-600 font-mono">[{cell.execution_count || ' '}]</span>
-                  </div>
-                  <pre className="p-4 overflow-x-auto text-sm">
-                    <code className="language-python">{source}</code>
-                  </pre>
-                </div>
-
-                {cell.outputs && cell.outputs.length > 0 && (
-                  <div className="space-y-4">
-                    {cell.outputs.map((output: any, outIdx: number) => {
-                      if (output.output_type === 'stream' || (output.data && output.data['text/plain'])) {
-                        const text = output.text 
-                          ? (Array.isArray(output.text) ? output.text.join('') : output.text)
-                          : (Array.isArray(output.data['text/plain']) ? output.data['text/plain'].join('') : output.data['text/plain']);
-                        
-                        return (
-                          <pre key={outIdx} className="bg-black/50 p-4 rounded-lg text-xs text-gray-400 overflow-x-auto font-mono border border-white/[0.03]">
-                            {text}
-                          </pre>
-                        );
-                      }
-
-                      if (output.data && output.data['image/png']) {
-                        return (
-                          <div key={outIdx} className="bg-white/5 rounded-xl p-4 border border-white/[0.06]">
-                            <img 
-                              src={`data:image/png;base64,${output.data['image/png']}`} 
-                              alt="Analysis Output" 
-                              className="mx-auto rounded-lg shadow-2xl max-w-full h-auto"
-                            />
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          }
-          return null;
-        })}
+      <div className="prose prose-invert prose-emerald max-w-none">
+        <p>This is a placeholder for the article content. In this stable version, we have reverted the dynamic notebook rendering to ensure core stability.</p>
+        <h2>Overview</h2>
+        <p>Detailed technical content will be restored as static or CMS-driven content in future updates.</p>
       </div>
     </article>
   );
