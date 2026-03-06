@@ -5,6 +5,11 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'yaml';
 
+/**
+ * @fileOverview Jupyter Notebook parser for the Blog pipeline.
+ * Extracts metadata from the first cell and prepares content for rendering.
+ */
+
 export interface NotebookMetadata {
   title: string;
   date: string;
@@ -32,7 +37,7 @@ export async function getAllNotebooks() {
     const filePath = path.join(NOTEBOOKS_DIR, filename);
     const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
     
-    // First cell is metadata YAML
+    // First cell is metadata YAML in a markdown cell
     const firstCell = content.cells[0];
     let metadata: NotebookMetadata = {
       title: slug.replace(/-/g, ' '),
