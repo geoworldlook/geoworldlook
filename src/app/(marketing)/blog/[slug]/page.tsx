@@ -103,18 +103,7 @@ export default async function BlogPostPage({ params }: Props) {
                 {cell.outputs && cell.outputs.length > 0 && (
                   <div className="space-y-3">
                     {cell.outputs.map((output: any, oIdx: number) => {
-                      if (output.output_type === 'stream' || (output.data && output.data['text/plain'])) {
-                        const text = output.text ? 
-                          (Array.isArray(output.text) ? output.text.join('') : output.text) : 
-                          (Array.isArray(output.data['text/plain']) ? output.data['text/plain'].join('') : output.data['text/plain']);
-                        
-                        return (
-                          <pre key={oIdx} className="bg-black/40 border-l-2 border-emerald-500/30 p-4 rounded-r-lg text-xs text-gray-400 overflow-x-auto font-mono">
-                            {text}
-                          </pre>
-                        );
-                      }
-
+                      // Najpierw sprawdzamy czy istnieje obraz
                       if (output.data && output.data['image/png']) {
                         return (
                           <div key={oIdx} className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex justify-center">
@@ -126,7 +115,18 @@ export default async function BlogPostPage({ params }: Props) {
                           </div>
                         );
                       }
-
+                      // Jeśli nie ma obrazu, renderujemy tekst
+                      if (output.output_type === 'stream' || (output.data && output.data['text/plain'])) {
+                        const text = output.text ? 
+                          (Array.isArray(output.text) ? output.text.join('') : output.text) : 
+                          (Array.isArray(output.data['text/plain']) ? output.data['text/plain'].join('') : output.data['text/plain']);
+                        
+                        return (
+                          <pre key={oIdx} className="bg-black/40 border-l-2 border-emerald-500/30 p-4 rounded-r-lg text-xs text-gray-400 overflow-x-auto font-mono">
+                            {text}
+                          </pre>
+                        );
+                      }
                       return null;
                     })}
                   </div>
