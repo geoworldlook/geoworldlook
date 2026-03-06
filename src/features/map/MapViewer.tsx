@@ -40,50 +40,11 @@ export default function MapViewer({ points }: MapViewerProps) {
 
     mapInstance.current = map
 
-    // Position navigation controls at bottom-left to prevent overlap with the StationPanel on the right
+    // Position navigation controls at bottom-left
     map.addControl(new maplibregl.NavigationControl(), 'bottom-left')
 
     map.on('load', () => {
-      // 1. Existing Spatial Points Layer
-      if (points && points.length > 0) {
-        map.addSource('spatial-data', {
-          type: 'geojson',
-          data: {
-            type: 'FeatureCollection',
-            features: points.map(p => ({
-              type: 'Feature',
-              geometry: {
-                type: 'Point',
-                coordinates: [p.lng, p.lat]
-              },
-              properties: {
-                value: p.value,
-                title: p.title
-              }
-            }))
-          }
-        })
-
-        map.addLayer({
-          id: 'spatial-points',
-          type: 'circle',
-          source: 'spatial-data',
-          paint: {
-            'circle-radius': 6,
-            'circle-color': [
-              'interpolate', ['linear'], ['get', 'value'],
-              0, '#6b7280',
-              0.5, '#10b981',
-              1, '#34d399'
-            ],
-            'circle-opacity': 0.85,
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#ffffff20'
-          }
-        })
-      }
-
-      // 2. Specialized Phenology Stations Layer
+      // 1. Reference Phenology Stations Layer
       map.addSource('stations-data', {
         type: 'geojson',
         data: {
@@ -135,29 +96,7 @@ export default function MapViewer({ points }: MapViewerProps) {
         }
       })
 
-      // Click Handlers
-      map.on('click', 'spatial-points', (e) => {
-        if (!e.features || e.features.length === 0) return
-        
-        const feature = e.features[0]
-        const coordinates = (feature.geometry as any).coordinates.slice()
-        const { title, value } = feature.properties as { title: string, value: number }
-
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
-        }
-
-        new maplibregl.Popup()
-          .setLngLat(coordinates)
-          .setHTML(`
-            <div class="p-2 text-black">
-              <h3 class="font-bold text-sm mb-1">${title}</h3>
-              <p class="text-xs">Intensity: ${value.toFixed(2)}</p>
-            </div>
-          `)
-          .addTo(map)
-      })
-
+      // Click Handlers for stations
       map.on('click', 'stations-layer', (e) => {
         if (!e.features || e.features.length === 0) return
         const stationId = e.features[0].properties.id
@@ -179,18 +118,12 @@ export default function MapViewer({ points }: MapViewerProps) {
       map.on('mouseleave', 'stations-layer', () => {
         map.getCanvas().style.cursor = ''
       })
-      map.on('mouseenter', 'spatial-points', () => {
-        map.getCanvas().style.cursor = 'pointer'
-      })
-      map.on('mouseleave', 'spatial-points', () => {
-        map.getCanvas().style.cursor = ''
-      })
     })
 
     return () => {
       map.remove()
     }
-  }, [isMounted, points])
+  }, [isMounted])
 
   if (!isMounted) {
     return (
