@@ -6,9 +6,9 @@ import { createClient } from '@/lib/supabase/client';
 import { Station, StationTimeSeries } from '@/types/stations';
 
 /**
- * Custom hook for managing GIS station data from Supabase.
- * - Fetches all active stations for map markers.
- * - Fetches historical NDVI time-series for a specific selected station.
+ * Custom hook for managing Vineyard data from Supabase.
+ * - Fetches vineyard blocks as GeoJSON.
+ * - Fetches historical NDVI/NDMI time-series for selected block.
  */
 export function useStationData() {
   const [stations, setStations] = useState<Station[]>([]);
@@ -16,64 +16,68 @@ export function useStationData() {
   const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
 
-  // 1. Fetch all stations for the map
+  // 1. Fetch all vineyard blocks (with latest stats) for the map
   useEffect(() => {
-    async function fetchStations() {
+    async function fetchBlocks() {
       try {
-        const { data, error } = await supabase
-          .from('stations')
-          .select('id, name, country, lat, lng');
+        const { data, error } = await supabase.rpc('get_blocks_with_stats');
 
         if (error) throw error;
 
-        // Map database fields to the Station type
-        const formattedStations: Station[] = (data || []).map((s: any) => ({
-          id: s.id,
-          name: s.name,
-          country: s.country,
-          coordinates: [s.lng, s.lat],
-          timeSeries: [] // Initialized empty, loaded on selection
+        // Map RPC result to the Station (reused for blocks) type
+        const formattedBlocks: Station[] = (data || []).map((b: any) => ({
+          id: b.id,
+          name: b.name,
+          country: 'Vineyard Block', // Or some appropriate default
+          area_ha: b.area_ha,
+          geometry: typeof b.geom === 'string' ? JSON.parse(b.geom) : b.geom,
+          timeSeries: b.latest_ndvi ? [{
+            date: b.latest_date,
+            ndvi_index: Number(b.latest_ndvi),
+            ndmi_index: Number(b.latest_ndmi),
+            cloud_cover: 0 // Not returned by get_blocks_with_stats, can be 0 or null
+          }] : []
         }));
 
-        setStations(formattedStations);
+        setStations(formattedBlocks);
       } catch (err: any) {
-        console.error('Error fetching stations:', err);
+        console.error('Error fetching vineyard blocks:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchStations();
+    fetchBlocks();
   }, []);
 
   /**
-   * Fetches the 12-month time series for a specific station.
-   * Handles cloud cover filtering and sorting.
+   * Fetches the historical stats for a specific vineyard block.
    */
-  async function getStationStats(stationId: string): Promise<StationTimeSeries[]> {
+  async function getStationStats(blockId: string): Promise<StationTimeSeries[]> {
     try {
       const { data, error } = await supabase
-        .from('station_stats')
-        .select('date, ndvi_index, cloud_cover')
-        .eq('station_id', stationId)
+        .from('vineyard_stats')
+        .select('date, ndvi_mean, ndmi_mean, cloud_cover')
+        .eq('block_id', blockId)
         .order('date', { ascending: true });
 
       if (error) throw error;
 
       return (data || []).map((d: any) => ({
         date: d.date,
-        ndvi_index: Number(d.ndvi_index), // TWARDE RZUTOWANIE NA LICZBĘ //ndvi_index: d.ndvi_index,
-        cloud_cover: Number(d.cloud_cover) // TWARDE RZUTOWANIE NA LICZBĘ//cloud_cover: d.cloud_cover
+        ndvi_index: Number(d.ndvi_mean),
+        ndmi_index: Number(d.ndmi_mean),
+        cloud_cover: Number(d.cloud_cover)
       }));
     } catch (err: any) {
-      console.error(`Error fetching stats for station ${stationId}:`, err);
+      console.error(`Error fetching stats for block ${blockId}:`, err);
       return [];
     }
   }
 
   return {
-    stations,
+    stations, // Kept as stations to avoid breaking MapViewer interface
     loading,
     error,
     getStationStats
