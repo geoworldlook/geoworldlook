@@ -16,3 +16,19 @@ export interface SpatialPoint {
   value: number
   title: string
 }
+
+export interface VineyardBlock {
+  id: string;
+  name: string;
+  area_ha: number | null;
+  geom: any; // GeoJSON or WKT
+  created_at: string;
+}
+
+export interface VineyardStat {
+  block_id: string;
+  date: string;
+  cloud_cover: number;
+  ndvi_mean: number;
+  ndmi_mean: number;
+}
