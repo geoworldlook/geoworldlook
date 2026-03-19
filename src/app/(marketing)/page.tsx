@@ -1,12 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Trees, Thermometer, Layers } from 'lucide-react'
-import { getSpatialData } from '@/lib/supabase/queries'
 import MapViewerWrapper from '@/features/map/MapViewerWrapper'
 
 export default async function LandingPage() {
-  const spatialData = await getSpatialData()
-
   return (
     <div className="flex flex-col w-full">
       {/* SECTION 1 — HERO */}
@@ -86,7 +83,7 @@ export default async function LandingPage() {
           </div>
           
           <div className="w-full h-[500px] rounded-xl border border-white/[0.06] overflow-hidden">
-            <MapViewerWrapper points={spatialData} />
+            <MapViewerWrapper />
           </div>
           
           <p className="text-gray-600 text-xs mt-3 text-center italic">
@@ -111,10 +108,10 @@ export default async function LandingPage() {
             </div>
 
             <div className="bg-[#111] border border-white/[0.06] rounded-xl p-6 hover:border-emerald-400/20 transition-colors duration-300 group">
-              <Thermometer className="text-emerald-400 mb-4" size={32} />
-              <h3 className="text-xl font-bold text-white mb-2">Urban Thermal Analysis</h3>
+              <Trees className="text-emerald-400 mb-4" size={32} />
+              <h3 className="text-xl font-bold text-white mb-2">Vineyard Health Analysis</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                Land Surface Temperature mapping and heat island detection for urban planning and adaptation.
+                Monitoring vegetation vigor (NDVI) and water stress (NDMI) for precision viticulture using polygon-based analysis.
               </p>
               <Link href="/analyses" className="text-emerald-400 text-sm font-bold group-hover:underline">
                 View analyses →
