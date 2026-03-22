@@ -1,3 +1,4 @@
+import { VineyardBlock, VineyardStat } from './vineyard';
 
 export interface Analysis {
   id: string
@@ -15,4 +16,21 @@ export interface SpatialPoint {
   lng: number
   value: number
   title: string
+}
+
+export interface Database {
+  public: {
+    Tables: {
+      vineyard_blocks: {
+        Row: VineyardBlock;
+        Insert: Omit<VineyardBlock, 'id' | 'created_at'>;
+        Update: Partial<Omit<VineyardBlock, 'id' | 'created_at'>>;
+      };
+      vineyard_stats: {
+        Row: VineyardStat;
+        Insert: VineyardStat;
+        Update: Partial<VineyardStat>;
+      };
+    };
+  };
 }
