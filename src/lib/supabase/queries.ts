@@ -1,6 +1,8 @@
 
 import { createClient } from './server'
-import { Analysis, SpatialPoint } from '@/types/database.types'
+import { Analysis } from '@/types/database.types'
+import { VineyardBlock } from '@/types/vineyard'
+import { MOCK_VINEYARD_BLOCKS } from '../mock-data/vineyard'
 
 const MOCK_ANALYSES: Analysis[] = [
   {
@@ -32,9 +34,6 @@ const MOCK_ANALYSES: Analysis[] = [
   }
 ]
 
-// Legacy Polish spatial points removed for code cleanup
-const MOCK_SPATIAL_POINTS: SpatialPoint[] = []
-
 export async function getAnalyses(): Promise<Analysis[]> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -57,36 +56,41 @@ export async function getAnalyses(): Promise<Analysis[]> {
       return MOCK_ANALYSES
     }
 
-    return data ?? MOCK_ANALYSES
+    return (data as Analysis[]) ?? MOCK_ANALYSES
   } catch (e) {
     console.error('[GeoWorldLook] Error initializing Supabase:', e)
     return MOCK_ANALYSES
   }
 }
 
-export async function getSpatialData(): Promise<SpatialPoint[]> {
+export async function getVineyardBlocks(): Promise<VineyardBlock[]> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
-    return MOCK_SPATIAL_POINTS
+    return MOCK_VINEYARD_BLOCKS
   }
 
   try {
     const supabase = await createClient()
-    const { data, error } = await supabase
-      .from('spatial_data')
-      .select('id, lat, lng, value, title')
-      .limit(200)
+    const { data, error } = await supabase.rpc('get_vineyard_blocks_geojson')
 
     if (error) {
-      console.error('[GeoWorldLook] Supabase error:', error.message)
-      return MOCK_SPATIAL_POINTS
+      console.error('[GeoWorldLook] Supabase RPC error:', error.message)
+
+      // Fallback to direct select
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('vineyard_blocks')
+        .select('id, name, area_ha, geom')
+        .limit(200)
+
+      if (fallbackError) return MOCK_VINEYARD_BLOCKS
+      return (fallbackData as VineyardBlock[])
     }
 
-    return data ?? MOCK_SPATIAL_POINTS
+    return (data as VineyardBlock[]) ?? MOCK_VINEYARD_BLOCKS
   } catch (e) {
     console.error('[GeoWorldLook] Error initializing Supabase:', e)
-    return MOCK_SPATIAL_POINTS
+    return MOCK_VINEYARD_BLOCKS
   }
 }

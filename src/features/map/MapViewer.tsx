@@ -5,28 +5,28 @@ import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 
 import { MAP_CONFIG } from './config'
-import StationPanel from './components/StationPanel'
-import { Station } from '@/types/stations'
-import { useStationData } from '@/hooks/use-station-data'
+import BlockPanel from './components/BlockPanel'
+import { VineyardBlockWithStats } from '@/types/vineyard'
+import { useVineyardData } from '@/hooks/use-vineyard-data'
 
 interface MapViewerProps {
-  points?: any[]
+  initialData?: any
 }
 
-export default function MapViewer({ points }: MapViewerProps) {
+export default function MapViewer({ initialData }: MapViewerProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<maplibregl.Map | null>(null)
   const [isMounted, setIsMounted] = useState(false)
-  const [selectedStation, setSelectedStation] = useState<Station | null>(null)
+  const [selectedBlock, setSelectedBlock] = useState<VineyardBlockWithStats | null>(null)
   
-  const { stations, loading: stationsLoading, getStationStats } = useStationData();
+  const { blocks, loading, getBlockStats } = useVineyardData();
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
   useEffect(() => {
-    if (!isMounted || !mapContainer.current || stationsLoading) return
+    if (!isMounted || !mapContainer.current || loading) return
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
@@ -41,75 +41,140 @@ export default function MapViewer({ points }: MapViewerProps) {
     map.addControl(new maplibregl.NavigationControl(), 'bottom-left')
 
     map.on('load', () => {
-      map.addSource('stations-data', {
+      // Create GeoJSON features from blocks
+      const features = blocks.map(b => {
+        let geometry = b.geom;
+        // PostGIS geom can be a string (GeoJSON) or object depending on driver
+        if (typeof geometry === 'string') {
+            geometry = JSON.parse(geometry);
+        }
+
+        return {
+          type: 'Feature',
+          id: b.id,
+          geometry: geometry,
+          properties: {
+            id: b.id,
+            name: b.name,
+            area_ha: b.area_ha
+          }
+        };
+      });
+
+      map.addSource('vineyard-blocks', {
         type: 'geojson',
         data: {
           type: 'FeatureCollection',
-          features: stations.map(s => ({
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: s.coordinates
-            },
-            properties: {
-              id: s.id,
-              name: s.name,
-              country: s.country
-            }
-          }))
-        }
+          features: features as any
+        },
+        // Important for feature-state hover to work
+        generateId: true
       })
 
+      // Add fill layer for polygons
       map.addLayer({
-        id: 'stations-layer',
-        type: 'circle',
-        source: 'stations-data',
+        id: 'blocks-fill',
+        type: 'fill',
+        source: 'vineyard-blocks',
         paint: {
-          'circle-radius': 10,
-          'circle-color': '#10b981',
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#ffffff',
-          'circle-opacity': 0.9
+          'fill-color': '#10b981',
+          'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            0.6,
+            0.3
+          ]
         }
       })
 
-      map.on('click', 'stations-layer', async (e) => {
+      // Add outline layer for polygons
+      map.addLayer({
+        id: 'blocks-outline',
+        type: 'line',
+        source: 'vineyard-blocks',
+        paint: {
+          'line-color': '#10b981',
+          'line-width': 2
+        }
+      })
+
+      let hoveredStateId: string | number | null = null;
+
+      map.on('mousemove', 'blocks-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          if (hoveredStateId !== null) {
+            map.setFeatureState(
+              { source: 'vineyard-blocks', id: hoveredStateId },
+              { hover: false }
+            );
+          }
+          hoveredStateId = e.features[0].id ?? null;
+          if (hoveredStateId !== null) {
+            map.setFeatureState(
+              { source: 'vineyard-blocks', id: hoveredStateId },
+              { hover: true }
+            );
+          }
+          map.getCanvas().style.cursor = 'pointer';
+        }
+      });
+
+      map.on('mouseleave', 'blocks-fill', () => {
+        if (hoveredStateId !== null) {
+          map.setFeatureState(
+            { source: 'vineyard-blocks', id: hoveredStateId },
+            { hover: false }
+          );
+        }
+        hoveredStateId = null;
+        map.getCanvas().style.cursor = '';
+      });
+
+      map.on('click', 'blocks-fill', async (e) => {
         if (!e.features || e.features.length === 0) return
-        const stationId = e.features[0].properties.id
-        const stationBase = stations.find(s => s.id === stationId)
+        const blockId = e.features[0].properties?.id
+        const blockBase = blocks.find(b => b.id === blockId)
         
-        if (stationBase) {
-          const timeSeries = await getStationStats(stationId);
-          setSelectedStation({ ...stationBase, timeSeries });
+        if (blockBase) {
+          const stats = await getBlockStats(blockId);
+          setSelectedBlock({ ...blockBase, stats });
           
-          map.flyTo({
-            center: stationBase.coordinates,
-            zoom: 8,
-            essential: true
-          })
+          // Fit bounds to polygon
+          const coordinates = (e.features[0].geometry as any).coordinates[0];
+          const bounds = coordinates.reduce((acc: any, coord: any) => {
+            return acc.extend(coord);
+          }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+
+          map.fitBounds(bounds, { padding: 50, duration: 1000 });
         }
       })
 
-      map.on('mouseenter', 'stations-layer', () => {
-        map.getCanvas().style.cursor = 'pointer'
-      })
-      map.on('mouseleave', 'stations-layer', () => {
-        map.getCanvas().style.cursor = ''
-      })
+      // If we have blocks, fit map to them
+      if (features.length > 0) {
+        const bounds = new maplibregl.LngLatBounds();
+        features.forEach((f: any) => {
+          if (f.geometry.type === 'Polygon') {
+            f.geometry.coordinates[0].forEach((coord: any) => {
+              bounds.extend(coord);
+            });
+          }
+        });
+        map.fitBounds(bounds, { padding: 50, duration: 0 });
+      }
     })
 
     return () => {
       map.remove()
     }
-  }, [isMounted, stations, stationsLoading])
+  }, [isMounted, blocks, loading])
 
-  if (!isMounted || stationsLoading) {
+  if (!isMounted || loading) {
     return (
       <div className="w-full h-full rounded-xl bg-[#0a0a0a] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
           <p className="text-gray-500 text-[10px] font-medium uppercase tracking-widest">
-            Synchronizing Satellite Stations...
+            Synchronizing Vineyard Blocks...
           </p>
         </div>
       </div>
@@ -120,10 +185,10 @@ export default function MapViewer({ points }: MapViewerProps) {
     <div className="relative w-full h-full overflow-hidden">
       <div ref={mapContainer} className="w-full h-full rounded-xl overflow-hidden shadow-2xl" />
       
-      {selectedStation && (
-        <StationPanel 
-          station={selectedStation} 
-          onClose={() => setSelectedStation(null)} 
+      {selectedBlock && (
+        <BlockPanel
+          block={selectedBlock}
+          onClose={() => setSelectedBlock(null)}
         />
       )}
     </div>
