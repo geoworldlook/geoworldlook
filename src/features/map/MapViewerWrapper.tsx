@@ -1,8 +1,6 @@
 "use client"
 
 import dynamic from 'next/dynamic'
-import type { SpatialPoint } from '@/types/database.types'
-
 const MapViewer = dynamic(
   () => import('./MapViewer'),
   { 
@@ -18,6 +16,6 @@ const MapViewer = dynamic(
   }
 )
 
-export default function MapViewerWrapper({ points }: { points?: SpatialPoint[] }) {
+export default function MapViewerWrapper({ points }: { points?: any[] }) {
   return <MapViewer points={points} />
 }
