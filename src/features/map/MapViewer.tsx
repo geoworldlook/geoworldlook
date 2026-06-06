@@ -5,28 +5,29 @@ import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 
 import { MAP_CONFIG } from './config'
-import StationPanel from './components/StationPanel'
-import { Station } from '@/types/stations'
-import { useStationData } from '@/hooks/use-station-data'
+import BlockPanel from './components/BlockPanel'
+import { VineyardBlockWithStats } from '@/types/vineyard'
+import { useVineyardData } from '@/hooks/use-vineyard-data'
 
 interface MapViewerProps {
-  points?: any[]
+  points?: any[] // Keep for backward compatibility if needed temporarily
 }
 
 export default function MapViewer({ points }: MapViewerProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<maplibregl.Map | null>(null)
   const [isMounted, setIsMounted] = useState(false)
-  const [selectedStation, setSelectedStation] = useState<Station | null>(null)
+  const [selectedBlock, setSelectedBlock] = useState<VineyardBlockWithStats | null>(null)
+  const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null)
   
-  const { stations, loading: stationsLoading, getStationStats } = useStationData();
+  const { blocks, loading, getBlockStats } = useVineyardData();
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
   useEffect(() => {
-    if (!isMounted || !mapContainer.current || stationsLoading) return
+    if (!isMounted || !mapContainer.current || loading || !blocks) return
 
     const map = new maplibregl.Map({
       container: mapContainer.current,
@@ -41,75 +42,124 @@ export default function MapViewer({ points }: MapViewerProps) {
     map.addControl(new maplibregl.NavigationControl(), 'bottom-left')
 
     map.on('load', () => {
-      map.addSource('stations-data', {
+      map.addSource('vineyard-blocks', {
         type: 'geojson',
-        data: {
-          type: 'FeatureCollection',
-          features: stations.map(s => ({
-            type: 'Feature',
-            geometry: {
-              type: 'Point',
-              coordinates: s.coordinates
-            },
-            properties: {
-              id: s.id,
-              name: s.name,
-              country: s.country
-            }
-          }))
-        }
+        data: blocks,
+        generateId: true
       })
 
+      // Polygon fill layer
       map.addLayer({
-        id: 'stations-layer',
-        type: 'circle',
-        source: 'stations-data',
+        id: 'vineyard-fill',
+        type: 'fill',
+        source: 'vineyard-blocks',
         paint: {
-          'circle-radius': 10,
-          'circle-color': '#10b981',
-          'circle-stroke-width': 3,
-          'circle-stroke-color': '#ffffff',
-          'circle-opacity': 0.9
+          'fill-color': '#10b981',
+          'fill-opacity': [
+            'case',
+            ['boolean', ['feature-state', 'hover'], false],
+            0.6,
+            0.3
+          ]
         }
       })
 
-      map.on('click', 'stations-layer', async (e) => {
+      // Polygon outline layer
+      map.addLayer({
+        id: 'vineyard-outline',
+        type: 'line',
+        source: 'vineyard-blocks',
+        paint: {
+          'line-color': '#10b981',
+          'line-width': 2
+        }
+      })
+
+      map.on('click', 'vineyard-fill', async (e) => {
         if (!e.features || e.features.length === 0) return
-        const stationId = e.features[0].properties.id
-        const stationBase = stations.find(s => s.id === stationId)
+        const feature = e.features[0]
+        const blockId = feature.properties.id
+
+        // Find block in original data
+        const blockBase = blocks.features.find((f: any) => f.properties.id === blockId)
         
-        if (stationBase) {
-          const timeSeries = await getStationStats(stationId);
-          setSelectedStation({ ...stationBase, timeSeries });
+        if (blockBase) {
+          const stats = await getBlockStats(blockId);
+          setSelectedBlock({
+            id: blockBase.properties.id,
+            name: blockBase.properties.name,
+            area_ha: blockBase.properties.area_ha,
+            geom: blockBase.geometry,
+            stats
+          });
           
-          map.flyTo({
-            center: stationBase.coordinates,
-            zoom: 8,
-            essential: true
-          })
+          // Fly to block centroid or bounds
+          const coordinates = blockBase.geometry.coordinates[0];
+          const bounds = coordinates.reduce((acc: maplibregl.LngLatBounds, coord: number[]) => {
+            return acc.extend(coord as [number, number]);
+          }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
+
+          map.fitBounds(bounds, { padding: 50, maxZoom: 15 });
         }
       })
 
-      map.on('mouseenter', 'stations-layer', () => {
-        map.getCanvas().style.cursor = 'pointer'
+      map.on('mousemove', 'vineyard-fill', (e) => {
+        if (e.features && e.features.length > 0) {
+          map.getCanvas().style.cursor = 'pointer'
+
+          if (hoveredBlockId !== null) {
+            map.setFeatureState(
+              { source: 'vineyard-blocks', id: hoveredBlockId },
+              { hover: false }
+            )
+          }
+
+          const newHoveredId = e.features[0].id as string
+          setHoveredBlockId(newHoveredId)
+          map.setFeatureState(
+            { source: 'vineyard-blocks', id: newHoveredId },
+            { hover: true }
+          )
+        }
       })
-      map.on('mouseleave', 'stations-layer', () => {
+
+      map.on('mouseleave', 'vineyard-fill', () => {
         map.getCanvas().style.cursor = ''
+        if (hoveredBlockId !== null) {
+          map.setFeatureState(
+            { source: 'vineyard-blocks', id: hoveredBlockId },
+            { hover: false }
+          )
+        }
+        setHoveredBlockId(null)
       })
+
+      // Fit map to blocks
+      if (blocks.features.length > 0) {
+        const bounds = new maplibregl.LngLatBounds();
+        blocks.features.forEach((feature: any) => {
+          if (feature.geometry.type === 'Polygon') {
+            feature.geometry.coordinates[0].forEach((coord: number[]) => {
+              bounds.extend(coord as [number, number]);
+            });
+          }
+        });
+        map.fitBounds(bounds, { padding: 100, maxZoom: 12 });
+      }
     })
 
     return () => {
       map.remove()
     }
-  }, [isMounted, stations, stationsLoading])
+  }, [isMounted, blocks, loading])
 
-  if (!isMounted || stationsLoading) {
+  if (!isMounted || loading) {
     return (
       <div className="w-full h-full rounded-xl bg-[#0a0a0a] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="w-6 h-6 border-2 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
           <p className="text-gray-500 text-[10px] font-medium uppercase tracking-widest">
-            Synchronizing Satellite Stations...
+            Synchronizing Vineyard Blocks...
           </p>
         </div>
       </div>
@@ -120,10 +170,10 @@ export default function MapViewer({ points }: MapViewerProps) {
     <div className="relative w-full h-full overflow-hidden">
       <div ref={mapContainer} className="w-full h-full rounded-xl overflow-hidden shadow-2xl" />
       
-      {selectedStation && (
-        <StationPanel 
-          station={selectedStation} 
-          onClose={() => setSelectedStation(null)} 
+      {selectedBlock && (
+        <BlockPanel
+          block={selectedBlock}
+          onClose={() => setSelectedBlock(null)}
         />
       )}
     </div>
