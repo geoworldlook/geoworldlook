@@ -19,5 +19,5 @@ const MapViewer = dynamic(
 )
 
 export default function MapViewerWrapper({ points }: { points?: SpatialPoint[] }) {
-  return <MapViewer points={points} />
+  return <MapViewer />
 }
