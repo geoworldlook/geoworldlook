@@ -1,0 +1,16 @@
+
+> geoworldlook@0.1.0 dev
+> next dev -p 9002 -p 9002
+
+   ▲ Next.js 15.5.9
+   - Local:        http://localhost:9002
+   - Network:      http://192.168.0.2:9002
+
+ ✓ Starting...
+ ✓ Ready in 2s
+ ○ Compiling / ...
+ ✓ Compiled / in 17.1s (2095 modules)
+ ✓ Compiled in 1875ms (911 modules)
+ GET / 200 in 18998ms
+ ✓ Compiled in 883ms (2072 modules)
+ GET / 200 in 610ms
