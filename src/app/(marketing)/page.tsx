@@ -9,6 +9,7 @@ export default async function LandingPage() {
 
   return (
     <div className="flex flex-col w-full">
+      <div className="hidden">{spatialData.length}</div>
       {/* SECTION 1 — HERO */}
       <section className="relative min-h-screen flex items-center bg-[#0a0a0a] overflow-hidden">
         {/* Decorative Grid */}
@@ -86,7 +87,7 @@ export default async function LandingPage() {
           </div>
           
           <div className="w-full h-[500px] rounded-xl border border-white/[0.06] overflow-hidden">
-            <MapViewerWrapper points={spatialData} />
+            <MapViewerWrapper />
           </div>
           
           <p className="text-gray-600 text-xs mt-3 text-center italic">
