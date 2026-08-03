@@ -43,3 +43,13 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+
+# local temp and log files
+dev_server.log
+dev_output.log
+dev_server_9005.log
+npm_output.log
+verification_*.png
+verification/
+__pycache__/
+*.pyc
