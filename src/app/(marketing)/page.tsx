@@ -1,12 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Trees, Thermometer, Layers } from 'lucide-react'
-import { getSpatialData } from '@/lib/supabase/queries'
 import MapViewerWrapper from '@/features/map/MapViewerWrapper'
 
 export default async function LandingPage() {
-  const spatialData = await getSpatialData()
-
   return (
     <div className="flex flex-col w-full">
       {/* SECTION 1 — HERO */}
@@ -70,7 +67,7 @@ export default async function LandingPage() {
       </section>
 
       {/* SECTION 3 — MAP PREVIEW */}
-      <section className="py-20 bg-[#0a0a0a]">
+      <section id="map-section" className="py-20 bg-[#0a0a0a]">
         <div className="max-w-6xl mx-auto px-4">
           <div className="mb-8">
             <p className="text-emerald-400 text-xs uppercase tracking-widest mb-2">
@@ -86,7 +83,7 @@ export default async function LandingPage() {
           </div>
           
           <div className="w-full h-[500px] rounded-xl border border-white/[0.06] overflow-hidden">
-            <MapViewerWrapper points={spatialData} />
+            <MapViewerWrapper />
           </div>
           
           <p className="text-gray-600 text-xs mt-3 text-center italic">
