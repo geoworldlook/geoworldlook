@@ -43,3 +43,19 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+
+# python and build artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+dev_server.log
+dev_output.log
+dev_server_9005.log
+npm_output.log
+verification/
+verify_click_center.py
+verify_map.py
+verify_map_final.py
+verification_*.png
