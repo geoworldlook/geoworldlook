@@ -13,20 +13,21 @@ CLIENT_ID = os.environ.get("COPERNICUS_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("COPERNICUS_CLIENT_SECRET")
 
 if not all([SUPABASE_URL, SUPABASE_KEY, CLIENT_ID, CLIENT_SECRET]):
-    raise ValueError("Krytyczny błąd: Brak wymaganych zmiennych w .env.local")
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    # Note: We fallback to print warning instead of hard crash so python tests / pre-commits
+    # do not fail if env files are empty in build environments.
+    print("⚠️ Uwaga: Brak niektórych zmiennych w .env.local (Wymagane do wykonania rzeczywistego backfillu).")
 
 TOKEN_URL = "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token"
 STATS_API_URL = "https://sh.dataspace.copernicus.eu/api/v1/statistics"
 
-NDVI_EVALSCRIPT = """
+EVALSCRIPT = """
 //VERSION=3
 function setup() {
   return {
-    input: ["B04", "B08", "SCL"],
+    input: ["B04", "B08", "B11", "SCL"],
     output: [
       { id: "ndvi", bands: 1 },
+      { id: "ndmi", bands: 1 },
       { id: "cloud", bands: 1 },
       { id: "dataMask", bands: 1 }
     ]
@@ -37,12 +38,16 @@ function evaluatePixel(sample) {
   let val_ndvi = sample.B08 + sample.B04;
   let ndvi = (val_ndvi !== 0) ? (sample.B08 - sample.B04) / val_ndvi : 0;
   
+  let val_ndmi = sample.B08 + sample.B11;
+  let ndmi = (val_ndmi !== 0) ? (sample.B08 - sample.B11) / val_ndmi : 0;
+
   // Klasyfikacja SCL: 3 (cień chmury), 8, 9, 10 (chmury)
   let isCloud = [3, 8, 9, 10].includes(sample.SCL) ? 1 : 0;
   let isValid = (sample.SCL !== 0) ? 1 : 0;
   
   return {
     ndvi: [ndvi],
+    ndmi: [ndmi],
     cloud: [isCloud],
     dataMask: [isValid]
   };
@@ -56,17 +61,16 @@ def get_cdse_token() -> str:
     resp.raise_for_status()
     return resp.json()["access_token"]
 
-def fetch_station_data(token: str, station: dict, days_back: int = 365) -> list:
-    lat, lng = station['lat'], station['lng']
-    offset = 0.001 
-    bbox = [lng - offset, lat - offset, lng + offset, lat + offset]
-    
+def fetch_block_data(token: str, geometry: dict, block_name: str, days_back: int = 365) -> list:
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days_back)
 
     payload = {
         "input": {
-            "bounds": {"bbox": bbox, "properties": {"crs": "http://www.opengis.net/def/crs/EPSG/0/4326"}},
+            "bounds": {
+                "geometry": geometry,
+                "properties": {"crs": "http://www.opengis.net/def/crs/EPSG/0/4326"}
+            },
             "data": [{"type": "sentinel-2-l2a"}]
         },
         "aggregation": {
@@ -75,60 +79,88 @@ def fetch_station_data(token: str, station: dict, days_back: int = 365) -> list:
                 "to": end_date.strftime("%Y-%m-%dT23:59:59Z")
             },
             "aggregationInterval": {"of": "P1D"},
-            "evalscript": NDVI_EVALSCRIPT
+            "evalscript": EVALSCRIPT
         }
     }
 
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
-    print(f"📡 Pobieranie 365 dni telemetrii dla: {station['name']} ({station['country']})...")
+    print(f"📡 Pobieranie {days_back} dni telemetrii dla działki: {block_name}...")
     
     resp = requests.post(STATS_API_URL, json=payload, headers=headers)
     if resp.status_code != 200:
-        print(f"⚠️ Błąd API CDSE dla {station['name']}: {resp.text}")
+        print(f"⚠️ Błąd API CDSE dla {block_name}: {resp.text}")
         return []
 
     return resp.json().get("data", [])
 
 def main():
-    print("🚀 Start procesu Backfill...")
+    print("🚀 Start procesu Backfill dla działek winnic...")
     
-    # Pobieramy 3 utworzone stacje z Supabase
-    stations = supabase.table("stations").select("*").execute().data
-    if not stations:
-        print("❌ Brak stacji w bazie Supabase.")
+    if not all([SUPABASE_URL, SUPABASE_KEY, CLIENT_ID, CLIENT_SECRET]):
+        print("❌ Przerwano backfill: brak wymaganych zmiennych środowiskowych.")
         return
 
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+    # Pobieramy działki w formacie GeoJSON za pomocą funkcji RPC
+    print("📡 Pobieranie definicji działek z Supabase...")
+    try:
+        resp = supabase.rpc("get_vineyard_blocks_geojson").execute()
+        geojson = resp.data
+    except Exception as e:
+        print(f"❌ Błąd wywołania RPC get_vineyard_blocks_geojson: {e}")
+        return
+
+    if not geojson or "features" not in geojson or not geojson["features"]:
+        print("❌ Brak działek w bazie Supabase lub pusta kolekcja GeoJSON.")
+        return
+
+    features = geojson["features"]
     token = get_cdse_token()
     records_to_upsert = []
 
-    for station in stations:
-        stats = fetch_station_data(token, station, days_back=365)
+    for feature in features:
+        geometry = feature.get("geometry")
+        properties = feature.get("properties", {})
+        block_id = properties.get("id")
+        block_name = properties.get("name", "Nienazwana działka")
+
+        if not geometry or not block_id:
+            print(f"⚠️ Pomijanie niekompletnego feature: {properties}")
+            continue
+
+        stats = fetch_block_data(token, geometry, block_name, days_back=365)
         
         for entry in stats:
             if 'outputs' not in entry: continue
             outputs = entry['outputs']
             
             ndvi_obj = outputs.get('ndvi', {}).get('bands', {}).get('B0')
-            if not ndvi_obj or ndvi_obj.get('stats', {}).get('sampleCount', 0) == 0: continue
-            
+            ndmi_obj = outputs.get('ndmi', {}).get('bands', {}).get('B0')
             cloud_obj = outputs.get('cloud', {}).get('bands', {}).get('B0')
+
+            if not ndvi_obj or ndvi_obj.get('stats', {}).get('sampleCount', 0) == 0: continue
+            if not ndmi_obj or ndmi_obj.get('stats', {}).get('sampleCount', 0) == 0: continue
+            
             ndvi_val = ndvi_obj['stats']['mean']
+            ndmi_val = ndmi_obj['stats']['mean']
             cloud_pct = cloud_obj['stats']['mean'] * 100 if cloud_obj else 100
             date = entry['interval']['from'].split("T")[0]
 
             # Akceptujemy tylko dane o zachmurzeniu <= 40%
             if cloud_pct <= 40:
                 records_to_upsert.append({
-                    "station_id": station['id'],
+                    "block_id": block_id,
                     "date": date,
-                    "ndvi_index": round(ndvi_val, 3), 
+                    "ndvi_mean": round(ndvi_val, 3),
+                    "ndmi_mean": round(ndmi_val, 3),
                     "cloud_cover": round(cloud_pct, 1)
                 })
 
     if records_to_upsert:
         print(f"💾 Wysyłanie {len(records_to_upsert)} bezchmurnych odczytów do Supabase...")
         try:
-            supabase.table("station_stats").upsert(records_to_upsert, on_conflict="station_id, date").execute()
+            supabase.table("vineyard_stats").upsert(records_to_upsert, on_conflict="block_id, date").execute()
             print("✅ Backfill zakończony sukcesem!")
         except Exception as e:
             print(f"❌ Błąd zapisu: {e}")
