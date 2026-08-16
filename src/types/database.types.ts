@@ -1,4 +1,3 @@
-
 export interface Analysis {
   id: string
   title: string
@@ -15,4 +14,21 @@ export interface SpatialPoint {
   lng: number
   value: number
   title: string
+}
+
+export interface VineyardBlock {
+  id: string
+  name: string
+  area_ha: number
+  geom?: any // GeoJSON Polygon geometry or WKB string
+  created_at?: string
+  stats?: VineyardStats[]
+}
+
+export interface VineyardStats {
+  block_id: string
+  date: string
+  cloud_cover: number
+  ndvi_mean: number
+  ndmi_mean: number
 }
