@@ -29,6 +29,22 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+dev_server.log
+dev_output.log
+dev_server_9005.log
+npm_output.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Verification & temporary files
+/verification/
+verify_*.py
+verification_*.png
 
 # vercel
 .vercel
