@@ -86,7 +86,7 @@ export default async function LandingPage() {
           </div>
           
           <div className="w-full h-[500px] rounded-xl border border-white/[0.06] overflow-hidden">
-            <MapViewerWrapper points={spatialData} />
+            <MapViewerWrapper />
           </div>
           
           <p className="text-gray-600 text-xs mt-3 text-center italic">
