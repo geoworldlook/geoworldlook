@@ -1,12 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
 import { ArrowRight, Trees, Thermometer, Layers } from 'lucide-react'
-import { getSpatialData } from '@/lib/supabase/queries'
 import MapViewerWrapper from '@/features/map/MapViewerWrapper'
 
 export default async function LandingPage() {
-  const spatialData = await getSpatialData()
-
   return (
     <div className="flex flex-col w-full">
       {/* SECTION 1 — HERO */}
@@ -25,13 +22,13 @@ export default async function LandingPage() {
             </span>
             
             <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight tracking-tight">
-              Satellite Intelligence<br />
-              <span className="text-emerald-400">for Real Decisions</span>
+              Vineyard Intelligence<br />
+              <span className="text-emerald-400">for Precision Agriculture</span>
             </h1>
             
             <p className="text-gray-400 text-lg md:text-xl leading-relaxed mt-6 max-w-xl">
-              Geospatial analytics powered by Sentinel-1/2 satellite data, 
-              automated ML pipelines and daily-updated spatial databases.
+              Geospatial analytics powered by Sentinel-2 satellite data,
+              NDVI & NDMI vegetation indices and automated PostGIS databases.
             </p>
             
             <div className="flex flex-wrap gap-4 mt-8">
@@ -54,16 +51,16 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
             <div className="space-y-1">
-              <p className="text-2xl font-bold text-white">Sentinel-2</p>
-              <p className="text-gray-500 text-sm">10m Resolution</p>
+              <p className="text-2xl font-bold text-white">Sentinel-2 L2A</p>
+              <p className="text-gray-500 text-sm">10m Multispectral Bands</p>
             </div>
             <div className="space-y-1">
-              <p className="text-2xl font-bold text-white">24h</p>
-              <p className="text-gray-500 text-sm">Data Update Cycle</p>
+              <p className="text-2xl font-bold text-white">NDVI & NDMI</p>
+              <p className="text-gray-500 text-sm">Vegetation & Moisture Stress</p>
             </div>
             <div className="space-y-1">
               <p className="text-2xl font-bold text-white">PostGIS</p>
-              <p className="text-gray-500 text-sm">Spatial Database</p>
+              <p className="text-gray-500 text-sm">Polygon Parcel Spatial Database</p>
             </div>
           </div>
         </div>
@@ -74,23 +71,23 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto px-4">
           <div className="mb-8">
             <p className="text-emerald-400 text-xs uppercase tracking-widest mb-2">
-              Live Coverage
+              Live Vineyard Telemetry
             </p>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
               Real-Time Spatial Data
             </h2>
             <p className="text-gray-400 max-w-xl">
-              Daily ingested geospatial data from automated satellite 
+              Daily ingested geospatial polygon data from automated Copernicus satellite
               processing pipelines, visualized on interactive maps.
             </p>
           </div>
           
           <div className="w-full h-[500px] rounded-xl border border-white/[0.06] overflow-hidden">
-            <MapViewerWrapper points={spatialData} />
+            <MapViewerWrapper />
           </div>
           
           <p className="text-gray-600 text-xs mt-3 text-center italic">
-            Data updated daily · Powered by Sentinel-1/2 satellites
+            Data updated daily · Powered by Sentinel-2 satellites & PostGIS
           </p>
         </div>
       </section>
@@ -101,9 +98,9 @@ export default async function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-[#111] border border-white/[0.06] rounded-xl p-6 hover:border-emerald-400/20 transition-colors duration-300 group">
               <Trees className="text-emerald-400 mb-4" size={32} />
-              <h3 className="text-xl font-bold text-white mb-2">Forest Health Monitoring</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Vegetation Health (NDVI)</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                Bark beetle detection and forest dieback mapping using NDVI time-series analysis on Sentinel-2 data.
+                Monitor canopy vigor and photosynthetic activity across vineyard parcels over time.
               </p>
               <Link href="/analyses" className="text-emerald-400 text-sm font-bold group-hover:underline">
                 View analyses →
@@ -112,9 +109,9 @@ export default async function LandingPage() {
 
             <div className="bg-[#111] border border-white/[0.06] rounded-xl p-6 hover:border-emerald-400/20 transition-colors duration-300 group">
               <Thermometer className="text-emerald-400 mb-4" size={32} />
-              <h3 className="text-xl font-bold text-white mb-2">Urban Thermal Analysis</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Water Stress (NDMI)</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                Land Surface Temperature mapping and heat island detection for urban planning and adaptation.
+                Track canopy water content using NIR-SWIR spectral bands to optimize irrigation schedules.
               </p>
               <Link href="/analyses" className="text-emerald-400 text-sm font-bold group-hover:underline">
                 View analyses →
@@ -123,9 +120,9 @@ export default async function LandingPage() {
 
             <div className="bg-[#111] border border-white/[0.06] rounded-xl p-6 hover:border-emerald-400/20 transition-colors duration-300 group">
               <Layers className="text-emerald-400 mb-4" size={32} />
-              <h3 className="text-xl font-bold text-white mb-2">Change Detection</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Parcel Level Analytics</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                Multi-temporal SAR and optical data fusion for land cover change detection and monitoring.
+                Exact geometric polygon boundary tracking for precision viticulture management.
               </p>
               <Link href="/analyses" className="text-emerald-400 text-sm font-bold group-hover:underline">
                 View analyses →
@@ -139,11 +136,11 @@ export default async function LandingPage() {
       <section className="py-20 px-4 bg-[#0a0a0a]">
         <div className="max-w-3xl mx-auto text-center bg-[#111] border border-emerald-400/10 rounded-2xl p-12">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Need Custom Geospatial Analysis?
+            Need Custom Vineyard Telemetry?
           </h2>
           <p className="text-gray-400 mb-8">
             Satellite data processed, analyzed and delivered 
-            for your specific region and use case.
+            for your exact vineyard block coordinates.
           </p>
           <Link href="/contact"
             className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-8 py-3 rounded-lg transition-colors">
