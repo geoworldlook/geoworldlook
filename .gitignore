@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/verification/
 
 # next.js
 /.next/
@@ -20,9 +21,17 @@
 # production
 /build
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
 # misc
 .DS_Store
 *.pem
+*.log
+dev_server.log
 
 # debug
 npm-debug.log*
