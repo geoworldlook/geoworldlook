@@ -16,7 +16,7 @@ Each module is a standalone repository with its own pipeline, validation and doc
 | Module | Question | Data | Validated against | Status |
 |---|---|---|---|---|
 | [**AgriScreen**](https://github.com/geoworldlook/agriscreen) | Is this vineyard entering drought? | Sentinel-2 (10 m), ERA5-Land, satellite soil water index | soil sensors at 11 sites (ICOS, ISMN), Météo-France | v1.3.1 · active |
-| [**EGMS Check**](https://github.com/geoworldlook/egms-check) | Can EGMS InSAR be trusted to monitor subsidence? | EGMS L2b / L3, Sentinel-1 | GNSS (NGL), state levelling (NRW) | experiments 1–2 done · active |
+| [**EGMS Check**](https://github.com/geoworldlook/egms-check) | Can EGMS InSAR be trusted to monitor subsidence? | EGMS L2b / L3, Sentinel-1 | GNSS (NGL), state levelling (NRW) | v1.0.0 · active |
 | [**geoworldlook-web**](https://github.com/geoworldlook/geoworldlook-web) | Where the results are published | Next.js, MapLibre, Supabase | — | live |
 
 <details>
@@ -32,11 +32,13 @@ Each module is a standalone repository with its own pipeline, validation and doc
 <details>
 <summary><b>EGMS Check</b>: key results</summary>
 
-- Groningen (24 subsiding GNSS stations): 91% of station × track pairs agree within 1.5 mm/yr; slope 0.96.
-- North Rhine-Westphalia (1,216 levelling benchmarks):
-  - slope 0.96;
-  - 100% sign agreement in subsidence bowls;
-  - a constant ≈ −2 mm/yr datum offset, reported as a failed pre-registered criterion.
+- North Rhine-Westphalia (1,216 levelling benchmarks, independent of GNSS): EGMS shows the same height change as
+  levelling (slope 0.96, up to −140 mm in 3 years); same direction of motion at all 54 benchmarks in subsidence bowls.
+- Groningen (24 subsiding GNSS stations): the EGMS subsidence rate agrees with GNSS within 1.5 mm/yr for 91% of
+  station × track pairs (release 2019–2023) and 99% (release 2020–2024).
+- Reported as failed: a constant ≈ −2 mm/yr offset to the levelling datum (3 of 4 pre-registered rules not met) and
+  the stable-station check in Groningen.
+- One command runs the pipeline on a normal computer; offline tests run in CI on every change.
 
 </details>
 
