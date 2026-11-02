@@ -15,17 +15,17 @@ Each module is a standalone repository with its own pipeline, validation and doc
 
 | Module | Question | Data | Validated against | Status |
 |---|---|---|---|---|
-| [**AgriScreen**](https://github.com/geoworldlook/agriscreen) | Is this vineyard entering drought? | ERA5-Land, Sentinel-2 (super-resolved to 2.5 m) | ISMN soil-moisture station, Météo-France | v1.2 · active |
+| [**AgriScreen**](https://github.com/geoworldlook/agriscreen) | Is this vineyard entering drought? | Sentinel-2 (10 m), ERA5-Land, satellite soil water index | soil sensors at 11 sites (ICOS, ISMN), Météo-France | v1.3.1 · active |
 | [**EGMS Check**](https://github.com/geoworldlook/egms-check) | Can EGMS InSAR be trusted to monitor subsidence? | EGMS L2b / L3, Sentinel-1 | GNSS (NGL), state levelling (NRW) | experiments 1–2 done · active |
 | [**geoworldlook-web**](https://github.com/geoworldlook/geoworldlook-web) | Where the results are published | Next.js, MapLibre, Supabase | — | live |
 
 <details>
 <summary><b>AgriScreen</b>: key results</summary>
 
-- Root-zone soil moisture vs the in-situ station: R = 0.58 over 2,976 days.
-- Heat days: 68% detected with 9% false alarms on held-out years.
-- Daily Tmin / Tmax error vs Météo-France: about 1 °C.
-- Reported as not confirmed: the combined soil and vegetation alert, because vegetation lags soil moisture by 1–1.5 months.
+- “Dry soil” hint confirmed by soil sensors in the ground on 81% of days (49% by chance): 4,783 days at 11 sites in France, test rules registered before computing.
+- 30-day rainfall vs the Météo-France rain gauge in Condom: R = 0.90; heat days: 70% detected, 15% false alarms.
+- Reported as not confirmed: the vegetation hint vs measured evapotranspiration (67% vs 52% by chance).
+- [Live panel](https://geoworldlook.github.io/agriscreen/showcase/agriscreen_panel.html), updated automatically every week.
 
 </details>
 
