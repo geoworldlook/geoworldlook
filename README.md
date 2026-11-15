@@ -17,6 +17,8 @@ Each module is a standalone repository with its own pipeline, validation and doc
 |---|---|---|---|---|
 | [**AgriScreen**](https://github.com/geoworldlook/agriscreen) | Is this vineyard entering drought? | Sentinel-2 (10 m), ERA5-Land, satellite soil water index | soil sensors at 11 sites (ICOS, ISMN), Météo-France | v1.3.1 · active |
 | [**EGMS Check**](https://github.com/geoworldlook/egms-check) | Can EGMS InSAR be trusted to monitor subsidence? | EGMS L2b / L3, Sentinel-1 | GNSS (NGL), state levelling (NRW) | v1.0.0 · active |
+| [**Air Check**](https://github.com/geoworldlook/air-check) | Is the air-quality forecast right in my city? | CAMS PM2.5 forecast (Copernicus Atmosphere) | official stations in 28 cities (EEA) | v1.0.0 · active, runs daily |
+| [**Water Check**](https://github.com/geoworldlook/water-check) | Does radar see the water level change in a reservoir? | Sentinel-1 radar (RTC, from a STAC catalogue) | water-level gauges at 10 lakes and reservoirs (5 national networks) | v1.0.0 · active, runs daily |
 | [**geoworldlook-web**](https://github.com/geoworldlook/geoworldlook-web) | Where the results are published | Next.js, MapLibre, Supabase | — | live |
 
 <details>
@@ -39,6 +41,30 @@ Each module is a standalone repository with its own pipeline, validation and doc
 - Reported as failed: a constant ≈ −2 mm/yr offset to the levelling datum (3 of 4 pre-registered rules not met) and
   the stable-station check in Groningen.
 - One command runs the pipeline on a normal computer; offline tests run in CI on every change.
+
+</details>
+
+<details>
+<summary><b>Air Check</b>: key results</summary>
+
+- Daily automatic check of the Copernicus (CAMS) fine-dust forecast against official stations in 28 cities in 7 countries.
+- Last 365 days (reconstructed from the forecast archive): the forecast clearly beats the rule "tomorrow will be
+  like today" in 9 cities, clearly loses in 7, no clear difference in 12.
+- Reported as negative: large winter over-forecast in Milano, Katowice, Warszawa and Torino.
+- A live test with rules fixed before the first test day runs from 2026-11-16 to 2027-02-13.
+- [Live panel](https://geoworldlook.github.io/air-check/showcase/aircheck_panel.html), updated automatically every day.
+
+</details>
+
+<details>
+<summary><b>Water Check</b>: key results</summary>
+
+- Water area from Sentinel-1 radar against gauge levels at 10 lakes and reservoirs; 5,691 scenes since 2022;
+  rules registered before the test years (2024–2025) were computed.
+- Confirmed on 2 of 7 water bodies where a signal was expected (Lokka and Porttipahta in Lapland: rank correlation
+  0.92 and 0.97, level within 20 and 15 cm for a range of about 1 m).
+- Reported as negative: 4 water bodies not confirmed and 1 only partly; all 3 control lakes stable.
+- [Live panel](https://geoworldlook.github.io/water-check/showcase/watercheck_panel.html), updated automatically every day.
 
 </details>
 
