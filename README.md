@@ -17,8 +17,8 @@ Each module is a standalone repository with its own pipeline, validation and doc
 |---|---|---|---|---|
 | [**AgriScreen**](https://github.com/geoworldlook/agriscreen) | Is this vineyard entering drought? | Sentinel-2 (10 m), ERA5-Land, satellite soil water index | soil sensors at 11 sites (ICOS, ISMN), Météo-France | v1.3.1 · active |
 | [**EGMS Check**](https://github.com/geoworldlook/egms-check) | Can EGMS InSAR be trusted to monitor subsidence? | EGMS L2b / L3, Sentinel-1 | GNSS (NGL), state levelling (NRW) | v1.0.0 · active |
-| [**Air Check**](https://github.com/geoworldlook/air-check) | Is the air-quality forecast right in my city? | CAMS PM2.5 forecast (Copernicus Atmosphere) | official stations in 28 cities (EEA) | v1.0.0 · active, runs daily |
-| [**Water Check**](https://github.com/geoworldlook/water-check) | Does radar see the water level change in a reservoir? | Sentinel-1 radar (RTC, from a STAC catalogue) | water-level gauges at 10 lakes and reservoirs (5 national networks) | v1.0.0 · active, runs daily |
+| [**Air Check**](https://github.com/geoworldlook/air-check) | Is the air-quality forecast right in my city? | CAMS PM2.5 forecast (Copernicus Atmosphere) | official stations in 27 cities (EEA) | v1.1.0 · active, runs daily |
+| [**Water Check**](https://github.com/geoworldlook/water-check) | Does radar see the water level change in a reservoir? | Sentinel-1 radar (RTC, from a STAC catalogue) | water-level gauges at 9 lakes and reservoirs (4 national networks) | v1.1.0 · active, runs daily |
 | [**geoworldlook-web**](https://github.com/geoworldlook/geoworldlook-web) | Where the results are published | Next.js, MapLibre, Supabase | — | live |
 
 <details>
@@ -47,11 +47,13 @@ Each module is a standalone repository with its own pipeline, validation and doc
 <details>
 <summary><b>Air Check</b>: key results</summary>
 
-- Daily automatic check of the Copernicus (CAMS) fine-dust forecast against official stations in 28 cities in 7 countries.
-- Last 365 days (reconstructed from the forecast archive): the forecast clearly beats the rule "tomorrow will be
-  like today" in 9 cities, clearly loses in 7, no clear difference in 12.
-- Reported as negative: large winter over-forecast in Milano, Katowice, Warszawa and Torino.
-- A live test with rules fixed before the first test day runs from 2026-11-16 to 2027-02-13.
+- Daily automatic check of the Copernicus (CAMS) fine-dust forecast against official stations in 27 cities in 6 countries.
+- Corrected forecast (a small regression per station, MOS; rules fixed before the hold-out year was computed):
+  beats the rule "tomorrow will be like today" in 27 of 27 cities and the raw forecast in 27 of 27
+  (median error 3.95 µg/m³ against 5.48 raw and 5.16 for the rule).
+- Raw forecast, last 365 days: clearly better than the rule in 9 cities, clearly worse in 7 (winter over-forecast
+  in Milano, Katowice, Warszawa and Torino).
+- Live tests with rules fixed in advance: raw forecast 2026-11-16 to 2027-02-13, corrected forecast 2026-11-18 to 2027-02-15.
 - [Live panel](https://geoworldlook.github.io/air-check/showcase/aircheck_panel.html), updated automatically every day.
 
 </details>
@@ -59,11 +61,13 @@ Each module is a standalone repository with its own pipeline, validation and doc
 <details>
 <summary><b>Water Check</b>: key results</summary>
 
-- Water area from Sentinel-1 radar against gauge levels at 10 lakes and reservoirs; 5,691 scenes since 2022;
+- Water area from Sentinel-1 radar against gauge levels at 9 lakes and reservoirs; 5,335 scenes since 2022;
   rules registered before the test years (2024–2025) were computed.
-- Confirmed on 2 of 7 water bodies where a signal was expected (Lokka and Porttipahta in Lapland: rank correlation
+- Confirmed on 2 of 6 water bodies where a signal was expected (Lokka and Porttipahta in Lapland: rank correlation
   0.92 and 0.97, level within 20 and 15 cm for a range of about 1 m).
-- Reported as negative: 4 water bodies not confirmed and 1 only partly; all 3 control lakes stable.
+- Reported as negative: 3 water bodies not confirmed and 1 only partly; all 3 control lakes stable.
+- Method v2 from recent studies (smoothing, one curve, yearly refit): lower level error on 5 of 6 water bodies,
+  but its confirmation year 2026 is negative. Reported as measured.
 - [Live panel](https://geoworldlook.github.io/water-check/showcase/watercheck_panel.html), updated automatically every day.
 
 </details>
