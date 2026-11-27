@@ -19,7 +19,7 @@ Each module is a standalone repository with its own pipeline, validation and doc
 | [**EGMS Check**](https://github.com/geoworldlook/egms-check) | Can EGMS InSAR be trusted to monitor subsidence? | EGMS L2b / L3, Sentinel-1 | GNSS (NGL), state levelling (NRW) | v1.0.0 · active |
 | [**Air Check**](https://github.com/geoworldlook/air-check) | Is the air-quality forecast right in my city? | CAMS PM2.5 forecast (Copernicus Atmosphere) | official stations in 27 cities (EEA) | v1.1.0 · active, runs daily |
 | [**Water Check**](https://github.com/geoworldlook/water-check) | Does radar see the water level change in a reservoir? | Sentinel-1 radar (RTC, from a STAC catalogue) | water-level gauges at 9 lakes and reservoirs (4 national networks) | v1.1.0 · active, runs daily |
-| [**geoworldlook-web**](https://github.com/geoworldlook/geoworldlook-web) | Where the results are published | Next.js, MapLibre, Supabase | — | live |
+| [**geoworldlook-web**](https://github.com/geoworldlook/geoworldlook-web) | Where the results are published | Next.js, MapLibre | — | live |
 
 <details>
 <summary><b>AgriScreen</b>: key results</summary>
@@ -27,7 +27,7 @@ Each module is a standalone repository with its own pipeline, validation and doc
 - “Dry soil” hint confirmed by soil sensors in the ground on 81% of days (49% by chance): 4,783 days at 11 sites in France, test rules registered before computing.
 - 30-day rainfall vs the Météo-France rain gauge in Condom: R = 0.90; heat days: 70% detected, 15% false alarms.
 - Reported as not confirmed: the vegetation hint vs measured evapotranspiration (67% vs 52% by chance).
-- [Live panel](https://geoworldlook.github.io/agriscreen/showcase/agriscreen_panel.html), updated automatically every week.
+- [Live panel](https://geoworldlook.github.io/agriscreen/showcase/agriscreen_panel.html), refreshed about once a week.
 
 </details>
 
@@ -82,8 +82,8 @@ Each module is a standalone repository with its own pipeline, validation and doc
 | Processing | Python (pandas, NumPy, SciPy, rasterio, GeoPandas), Google Earth Engine, QGIS / PyQGIS, ArcGIS, PostGIS |
 | Machine learning | scikit-learn, TensorFlow, PyTorch (SEN2SR super-resolution) |
 | Validation | in-situ match-ups, bootstrap confidence intervals, Brier score, pre-registered criteria |
-| Engineering | reproducible Colab pipelines, offline self-tests, manifests with checksums |
-| Learning now | STAC, xarray, Docker, GitHub Actions, U-Net segmentation |
+| Engineering | reproducible Colab pipelines, daily GitHub Actions runs, Docker, STAC, offline self-tests, manifests with checksums |
+| Learning now | xarray, U-Net segmentation |
 
 ---
 
@@ -92,7 +92,7 @@ Each module is a standalone repository with its own pipeline, validation and doc
 | Project | Data | What it shows |
 |---|---|---|
 | [landsat-lst-ndvi](https://github.com/geoworldlook/landsat-lst-ndvi) | Landsat 8 thermal and optical | land surface temperature with NDVI-based emissivity (ArcPy) |
-| [lidar-powerline-classification](https://github.com/geoworldlook/lidar-powerline-classification) | airborne LiDAR (LAS) | power-line conductor detection with a neural network (TensorFlow) |
+| [lidar-powerline-classification](https://github.com/geoworldlook/lidar-powerline-classification) | airborne LiDAR (LAS) | power-line conductor detection with a neural network (TensorFlow), MSc thesis |
 | [renewable-energy-site-selection](https://github.com/geoworldlook/renewable-energy-site-selection) | BDOT10k, solar and wind rasters | PV and wind site screening for all 16 Polish provinces (PyQGIS, PostGIS) |
 | [f1-race-pace-prediction](https://github.com/geoworldlook/f1-race-pace-prediction) | FastF1 timing data | per-driver LSTM forecasts, checked race by race |
 | [pulsar-classification](https://github.com/geoworldlook/pulsar-classification) | radio-astronomy candidates | imbalanced classification done honestly (PCA + KNN) |
