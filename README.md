@@ -27,7 +27,7 @@ Each module is a standalone repository with its own pipeline, validation and doc
 - “Dry soil” hint confirmed by soil sensors in the ground on 81% of days (49% by chance): 4,783 days at 11 sites in France, test rules registered before computing.
 - 30-day rainfall vs the Météo-France rain gauge in Condom: R = 0.90; heat days: 70% detected, 15% false alarms.
 - Reported as not confirmed: the vegetation hint vs measured evapotranspiration (67% vs 52% by chance).
-- [Live panel](https://geoworldlook.github.io/agriscreen/showcase/agriscreen_panel.html), refreshed about once a week.
+- [Live panel](https://geoworldlook.github.io/agriscreen/showcase/agriscreen_panel.html), updated automatically every week (GitHub Actions).
 
 </details>
 
