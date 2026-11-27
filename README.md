@@ -15,7 +15,7 @@ Each module is a standalone repository with its own pipeline, validation and doc
 
 | Module | Question | Data | Validated against | Status |
 |---|---|---|---|---|
-| [**AgriScreen**](https://github.com/geoworldlook/agriscreen) | Is this vineyard entering drought? | Sentinel-2 (10 m), ERA5-Land, satellite soil water index | soil sensors at 11 sites (ICOS, ISMN), Météo-France | v1.3.1 · active |
+| [**AgriScreen**](https://github.com/geoworldlook/agriscreen) | Is this vineyard entering drought? | Sentinel-2 (10 m), ERA5-Land, satellite soil water index | soil sensors at 11 sites (ICOS, ISMN), Météo-France | v1.4.0 · active, runs weekly |
 | [**EGMS Check**](https://github.com/geoworldlook/egms-check) | Can EGMS InSAR be trusted to monitor subsidence? | EGMS L2b / L3, Sentinel-1 | GNSS (NGL), state levelling (NRW) | v1.0.0 · active |
 | [**Air Check**](https://github.com/geoworldlook/air-check) | Is the air-quality forecast right in my city? | CAMS PM2.5 forecast (Copernicus Atmosphere) | official stations in 27 cities (EEA) | v1.1.0 · active, runs daily |
 | [**Water Check**](https://github.com/geoworldlook/water-check) | Does radar see the water level change in a reservoir? | Sentinel-1 radar (RTC, from a STAC catalogue) | water-level gauges at 9 lakes and reservoirs (4 national networks) | v1.1.0 · active, runs daily |
